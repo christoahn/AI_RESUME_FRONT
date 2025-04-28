@@ -655,41 +655,45 @@ const ResumeForm: React.FC = () => {
           </div>
         ))}
       </div>
-      
-      <form onSubmit={handleSubmit}>
-        {renderStep()}
-        
-        <div className="button-group">
-          {currentStep > 0 && (
-            <button 
-              type="button" 
-              className="prev-btn" 
-              onClick={prevStep}
-            >
-              Previous
-            </button>
-          )}
-          
-          {currentStep < steps.length - 1 ? (
-            <button 
-              type="button" 
-              className="next-btn" 
-              onClick={nextStep}
-              disabled={!validateCurrentStep()}
-            >
-              Next
-            </button>
-          ) : (
-            <button 
-              type="submit" 
-              className="submit-btn"
-              disabled={loading || !validateCurrentStep()}
-            >
-              {loading ? 'Generating...' : 'Generate Resume'}
-            </button>
-          )}
+      {loading ? (
+        <div className="spinner">
+          <div className="spinner-circle"></div>
+          <div style={{marginTop: '20px', fontWeight: 'bold'}}>Generating Resume...</div>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          {renderStep()}
+          <div className="button-group">
+            {currentStep > 0 && (
+              <button 
+                type="button" 
+                className="prev-btn" 
+                onClick={prevStep}
+              >
+                Previous
+              </button>
+            )}
+            {currentStep < steps.length - 1 ? (
+              <button 
+                type="button" 
+                className="next-btn" 
+                onClick={nextStep}
+                disabled={!validateCurrentStep()}
+              >
+                Next
+              </button>
+            ) : (
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading || !validateCurrentStep()}
+              >
+                {loading ? 'Generating...' : 'Generate Resume'}
+              </button>
+            )}
+          </div>
+        </form>
+      )}
     </div>
   );
 };
