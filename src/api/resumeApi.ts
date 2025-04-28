@@ -26,7 +26,7 @@ interface WorkExperience {
 
 interface Project {
   title: string;
-  role: string;
+  position: string;
   duration: string;
   keywords: string;
 }
@@ -41,59 +41,102 @@ interface ResumeData {
 
 const API_BASE_URL = '/api/v1';
 
+// 값이 비어있는지 확인하는 함수
+const isEmpty = (value: any): boolean => {
+  return value === '' || value === undefined || value === null;
+};
+
+// 값을 적절히 변환하는 함수 (빈 값은 null로 변환)
+const formatValue = (value: any): any => {
+  return isEmpty(value) ? null : value;
+};
+
 const resumeApi = {
   generateResume: async (data: ResumeData) => {
     try {
-      const { basic_info, work_experience, projects } = data;
+      const { basic_info, education, work_experience, projects } = data;
       
+      // 작업 경험 데이터 변환
       const jobs: Record<string, any> = {};
+      if (typeof work_experience === 'object' && !Array.isArray(work_experience)) {
+        Object.entries(work_experience).forEach(([key, job], index) => {
+          jobs[`job${index + 1}`] = {
+            'company_name': formatValue(job.company),
+            'duration': formatValue(job.duration),
+            'position': formatValue(job.position),
+            'keywords': formatValue(job.keywords)
+          };
+        });
+      } else if (Array.isArray(work_experience)) {
+        work_experience.forEach((job, index) => {
+          jobs[`job${index + 1}`] = {
+            'company_name': formatValue(job.company),
+            'duration': formatValue(job.duration),
+            'position': formatValue(job.position),
+            'keywords': formatValue(job.keywords)
+          };
+        });
+      }
+      
+      // 프로젝트 데이터 변환
       const formattedProjects: Record<string, any> = {};
+      if (typeof projects === 'object' && !Array.isArray(projects)) {
+        Object.entries(projects).forEach(([key, project], index) => {
+          formattedProjects[`project${index + 1}`] = {
+            'project_name': formatValue(project.title),
+            'duration': formatValue(project.duration),
+            'position': formatValue(project.position),
+            'keywords': formatValue(project.keywords)
+          };
+        });
+      } else if (Array.isArray(projects)) {
+        projects.forEach((project, index) => {
+          formattedProjects[`project${index + 1}`] = {
+            'project_name': formatValue(project.title),
+            'duration': formatValue(project.duration),
+            'position': formatValue(project.position),
+            'keywords': formatValue(project.keywords)
+          };
+        });
+      }
       
-      const processItems = <T extends Record<string, any>>(
-        items: T[] | Record<string, T>,
-        keyPrefix: string,
-        keyMap: Record<string, string>,
-        target: Record<string, any>
-      ) => {
-        if (typeof items === 'object' && !Array.isArray(items)) {
-          Object.entries(items).forEach(([_, item], index) => {
-            const formattedItem: Record<string, any> = {};
-            Object.entries(keyMap).forEach(([origKey, newKey]) => {
-              formattedItem[newKey] = item[origKey] || null;
-            });
-            target[`${keyPrefix}${index + 1}`] = formattedItem;
-          });
-        } else if (Array.isArray(items)) {
-          items.forEach((item, index) => {
-            const formattedItem: Record<string, any> = {};
-            Object.entries(keyMap).forEach(([origKey, newKey]) => {
-              formattedItem[newKey] = item[origKey] || null;
-            });
-            target[`${keyPrefix}${index + 1}`] = formattedItem;
-          });
-        }
-      };
+      // 교육 데이터 변환
+      const formattedEducation: Record<string, any> = {};
+      if (typeof education === 'object' && !Array.isArray(education)) {
+        Object.entries(education).forEach(([key, edu], index) => {
+          formattedEducation[`education${index + 1}`] = {
+            'school': formatValue(edu.school),
+            'degree': formatValue(edu.degree),
+            'major': formatValue(edu.major),
+            'duration': formatValue(edu.duration),
+            'gpa': formatValue(edu.gpa)
+          };
+        });
+      } else if (Array.isArray(education)) {
+        education.forEach((edu, index) => {
+          formattedEducation[`education${index + 1}`] = {
+            'school': formatValue(edu.school),
+            'degree': formatValue(edu.degree),
+            'major': formatValue(edu.major),
+            'duration': formatValue(edu.duration),
+            'gpa': formatValue(edu.gpa)
+          };
+        });
+      }
       
-      processItems<WorkExperience>(work_experience, 'job', {
-        'company': 'company_name',
-        'duration': 'duration',
-        'position': 'position',
-        'keywords': 'keywords'
-      }, jobs);
-      
-      processItems<Project>(projects, 'project', {
-        'title': 'project_name',
-        'duration': 'duration',
-        'role': 'role',
-        'keywords': 'keywords'
-      }, formattedProjects);
-      
+      // 백엔드 API 요청 데이터 구성 (모든 키는 복수형, 소문자)
       const requestData = {
-        'name': basic_info.name || null,
-        'phone': basic_info.phone || null,
-        'email': basic_info.email || null,
+        'name': formatValue(basic_info.name),
+        'phone': formatValue(basic_info.phone),
+        'email': formatValue(basic_info.email),
+        'linkedin': formatValue(basic_info.linkedin),
+        'portfolio': formatValue(basic_info.portfolio),
+        'address': formatValue(basic_info.address),
         'jobs': jobs,
         'projects': formattedProjects,
+        'educations': formattedEducation,
+        'skills': formatValue(data.skills),
+        'action': 'generate_resume'
       };
       
       const response = await axios.post(`${API_BASE_URL}/resume/generate/`, requestData);

@@ -29,7 +29,7 @@ interface WorkExperience {
 
 interface Project {
   title: string;
-  role: string;
+  position: string;
   duration: string;
   keywords: string;
 }
@@ -65,7 +65,7 @@ const ResumeForm: React.FC = () => {
   
   const [projectList, setProjectList] = useState<Project[]>([{
     title: '',
-    role: '',
+    position: '',
     duration: '',
     keywords: ''
   }]);
@@ -145,7 +145,7 @@ const ResumeForm: React.FC = () => {
   const addProject = () => {
     setProjectList([...projectList, {
       title: '',
-      role: '',
+      position: '',
       duration: '',
       keywords: ''
     }]);
@@ -229,7 +229,7 @@ const ResumeForm: React.FC = () => {
       case 2: 
         return true; 
       case 3: 
-        return projectList.every(proj => proj.title && proj.role && proj.duration && proj.keywords);
+        return projectList.every(proj => proj.title && proj.position && proj.duration && proj.keywords);
       case 4: 
         return skills.trim() !== '';
       default:
@@ -473,12 +473,12 @@ const ResumeForm: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor={`role-${index}`}>Role</label>
+                  <label htmlFor={`position-${index}`}>Position</label>
                   <input 
                     type="text" 
-                    id={`role-${index}`} 
-                    name="role" 
-                    value={proj.role}
+                    id={`position-${index}`} 
+                    name="position" 
+                    value={proj.position}
                     onChange={(e) => handleProjectChange(index, e)}
                     required 
                   />

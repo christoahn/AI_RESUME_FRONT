@@ -205,7 +205,7 @@ const ResumeEditor: React.FC = () => {
               </button>
               <button 
                 className="prompt-btn" 
-                onClick={() => handlePromptClick("Make my experience more impactful")}
+                onClick={() => handlePromptClick("Make my position more impactful")}
               >
                 Enhance impact
               </button>
