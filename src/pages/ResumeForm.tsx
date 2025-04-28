@@ -32,6 +32,13 @@ interface Project {
   position: string;
   duration: string;
   keywords: string;
+  description: string[];
+}
+
+interface Research {
+  title: string;
+  research_duration: string;
+  keywords: string;
 }
 
 const ResumeForm: React.FC = () => {
@@ -67,6 +74,13 @@ const ResumeForm: React.FC = () => {
     title: '',
     position: '',
     duration: '',
+    keywords: '',
+    description: []
+  }]);
+  
+  const [researchesList, setResearchesList] = useState<Research[]>([{
+    title: '',
+    research_duration: '',
     keywords: ''
   }]);
   
@@ -78,6 +92,7 @@ const ResumeForm: React.FC = () => {
     "Education",
     "Work Experience",
     "Projects",
+    "Researches",
     "Skills"
   ];
 
@@ -103,8 +118,19 @@ const ResumeForm: React.FC = () => {
   const handleProjectChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const updatedProjects = [...projectList];
-    updatedProjects[index] = { ...updatedProjects[index], [name]: value };
+    if (name === 'description') {
+      updatedProjects[index].description = value.split('\n');
+    } else {
+      updatedProjects[index][name as keyof Omit<Project, 'description'>] = value;
+    }
     setProjectList(updatedProjects);
+  };
+  
+  const handleResearchChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const updatedResearches = [...researchesList];
+    updatedResearches[index] = { ...updatedResearches[index], [name]: value };
+    setResearchesList(updatedResearches);
   };
   
   const addEducation = () => {
@@ -147,7 +173,8 @@ const ResumeForm: React.FC = () => {
       title: '',
       position: '',
       duration: '',
-      keywords: ''
+      keywords: '',
+      description: []
     }]);
   };
   
@@ -156,6 +183,22 @@ const ResumeForm: React.FC = () => {
       const updatedProjects = [...projectList];
       updatedProjects.splice(index, 1);
       setProjectList(updatedProjects);
+    }
+  };
+
+  const addResearch = () => {
+    setResearchesList([...researchesList, {
+      title: '',
+      research_duration: '',
+      keywords: ''
+    }]);
+  };
+  
+  const removeResearch = (index: number) => {
+    if (researchesList.length > 1) {
+      const updatedResearches = [...researchesList];
+      updatedResearches.splice(index, 1);
+      setResearchesList(updatedResearches);
     }
   };
 
@@ -189,11 +232,17 @@ const ResumeForm: React.FC = () => {
         projectsObj[`project${index + 1}`] = proj;
       });
 
+      const researchesObj: Record<string, Research> = {};
+      researchesList.forEach((res, index) => {
+        researchesObj[`research${index + 1}`] = res;
+      });
+
       const formattedData = {
         basic_info: basicInfo,
         education: educationObj, 
         work_experience: workExperienceObj, 
         projects: projectsObj,
+        researches: researchesObj,
         skills: skills
       };
       
@@ -201,6 +250,7 @@ const ResumeForm: React.FC = () => {
       localStorage.setItem('education', JSON.stringify(educationObj)); 
       localStorage.setItem('work_experience', JSON.stringify(workExperienceObj)); 
       localStorage.setItem('projects', JSON.stringify(projectsObj)); 
+      localStorage.setItem('researches', JSON.stringify(researchesObj));
       localStorage.setItem('skills', skills);
 
       const response = await resumeApi.generateResume(formattedData);
@@ -231,6 +281,8 @@ const ResumeForm: React.FC = () => {
       case 3: 
         return projectList.every(proj => proj.title && proj.position && proj.duration && proj.keywords);
       case 4: 
+        return researchesList.every(res => res.title && res.research_duration && res.keywords);
+      case 5: 
         return skills.trim() !== '';
       default:
         return true;
@@ -460,7 +512,6 @@ const ResumeForm: React.FC = () => {
             {projectList.map((proj, index) => (
               <div key={index} className="dynamic-section">
                 <h3>Project #{index + 1}</h3>
-                
                 <div className="form-group">
                   <label htmlFor={`title-${index}`}>Title</label>
                   <input 
@@ -507,7 +558,17 @@ const ResumeForm: React.FC = () => {
                     required 
                   />
                 </div>
-                
+                <div className="form-group">
+                  <label htmlFor={`description-${index}`}>Description</label>
+                  <textarea
+                    id={`description-${index}`}
+                    name="description"
+                    value={proj.description.join('\n')}
+                    onChange={(e) => handleProjectChange(index, e)}
+                    placeholder="Enter each line of your project description on a new line"
+                    required
+                  />
+                </div>
                 {projectList.length > 1 && (
                   <button type="button" className="remove-btn" onClick={() => removeProject(index)}>
                     Remove Project
@@ -523,16 +584,71 @@ const ResumeForm: React.FC = () => {
       case 4:
         return (
           <div className="form-section">
+            <h2>Researches (Optional)</h2>
+            <p>Add your research experience details. If you don't have any research experience, you can skip this section.</p>
+            {researchesList.map((res, index) => (
+              <div key={index} className="dynamic-section">
+                <h3>Research #{index + 1}</h3>
+                <div className="form-group">
+                  <label htmlFor={`title-${index}`}>Title</label>
+                  <input
+                    type="text"
+                    id={`title-${index}`}
+                    name="title"
+                    value={res.title}
+                    onChange={(e) => handleResearchChange(index, e)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor={`research_duration-${index}`}>Research Duration</label>
+                  <input
+                    type="text"
+                    id={`research_duration-${index}`}
+                    name="research_duration"
+                    value={res.research_duration}
+                    onChange={(e) => handleResearchChange(index, e)}
+                    placeholder="MM/YYYY - MM/YYYY"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor={`keywords-${index}`}>Keywords</label>
+                  <input
+                    type="text"
+                    id={`keywords-${index}`}
+                    name="keywords"
+                    value={res.keywords}
+                    onChange={(e) => handleResearchChange(index, e)}
+                    placeholder="Enter keywords related to your research"
+                    required
+                  />
+                </div>
+                {researchesList.length > 1 && (
+                  <button type="button" className="remove-btn" onClick={() => removeResearch(index)}>
+                    Remove Research
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" className="add-btn" onClick={addResearch}>
+              Add Another Research
+            </button>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="form-section">
             <h2>Skills</h2>
             <div className="form-group">
               <label htmlFor="skills">Skills</label>
-              <textarea 
-                id="skills" 
-                name="skills" 
+              <textarea
+                id="skills"
+                name="skills"
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
                 placeholder="Enter your skills, separated by commas (e.g., Python, JavaScript, Communication, Leadership)"
-                required 
+                required
               />
             </div>
           </div>

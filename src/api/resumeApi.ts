@@ -31,15 +31,22 @@ interface Project {
   keywords: string;
 }
 
+interface Research {
+  title: string;
+  research_duration: string;
+  keywords: string;
+}
+
 interface ResumeData {
   basic_info: BasicInfo;
   education: Education[] | Record<string, Education>;
   work_experience: WorkExperience[] | Record<string, WorkExperience>;
   projects: Project[] | Record<string, Project>;
+  researches: Research[] | Record<string, Research>;
   skills: string;
 }
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = '/api/resume';
 
 // 값이 비어있는지 확인하는 함수
 const isEmpty = (value: any): boolean => {
@@ -54,7 +61,7 @@ const formatValue = (value: any): any => {
 const resumeApi = {
   generateResume: async (data: ResumeData) => {
     try {
-      const { basic_info, education, work_experience, projects } = data;
+      const { basic_info, education, work_experience, projects, researches } = data;
       
       // 작업 경험 데이터 변환
       const jobs: Record<string, any> = {};
@@ -100,6 +107,26 @@ const resumeApi = {
         });
       }
       
+      // 연구 경력 데이터 변환
+      const formattedResearches: Record<string, any> = {};
+      if (typeof researches === 'object' && !Array.isArray(researches)) {
+        Object.entries(researches).forEach(([key, research], index) => {
+          formattedResearches[`research${index + 1}`] = {
+            'title': formatValue(research.title),
+            'research_duration': formatValue(research.research_duration),
+            'keywords': formatValue(research.keywords)
+          };
+        });
+      } else if (Array.isArray(researches)) {
+        researches.forEach((research, index) => {
+          formattedResearches[`research${index + 1}`] = {
+            'title': formatValue(research.title),
+            'research_duration': formatValue(research.research_duration),
+            'keywords': formatValue(research.keywords)
+          };
+        });
+      }
+      
       // 교육 데이터 변환
       const formattedEducation: Record<string, any> = {};
       if (typeof education === 'object' && !Array.isArray(education)) {
@@ -134,12 +161,13 @@ const resumeApi = {
         'address': formatValue(basic_info.address),
         'jobs': jobs,
         'projects': formattedProjects,
+        'researches': formattedResearches,
         'educations': formattedEducation,
         'skills': formatValue(data.skills),
         'action': 'generate_resume'
       };
       
-      const response = await axios.post(`${API_BASE_URL}/resume/generate/`, requestData);
+      const response = await axios.post(`${API_BASE_URL}/basicinfos/`, requestData);
       return response.data;
     } catch (error) {
       console.error('Error generating resume:', error);
@@ -149,7 +177,7 @@ const resumeApi = {
 
   generatePdf: async (html: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/resume/export/pdf/`, { html }, {
+      const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
         responseType: 'blob'
       });
       return response.data;
@@ -161,7 +189,7 @@ const resumeApi = {
 
   generateDocx: async (html: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/resume/export/docx/`, { html }, {
+      const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
         responseType: 'blob'
       });
       return response.data;
