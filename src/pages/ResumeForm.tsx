@@ -194,8 +194,7 @@ const ResumeForm: React.FC = () => {
         education: educationObj, 
         work_experience: workExperienceObj, 
         projects: projectsObj,
-        skills: skills,
-        action: 'generate_resume'
+        skills: skills
       };
       
       localStorage.setItem('basic_info', JSON.stringify(basicInfo));

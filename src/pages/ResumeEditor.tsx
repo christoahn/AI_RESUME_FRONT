@@ -56,12 +56,10 @@ const ResumeEditor: React.FC = () => {
     
     addMessage(inputValue, true);
     setInputValue('');
-    
     setIsTyping(true);
     
     try {
       const response = await resumeApi.chatWithAI(inputValue, resumeHTML);
-      
       setIsTyping(false);
       
       if (response.status === 'success') {

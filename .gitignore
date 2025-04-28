@@ -1,8 +1,30 @@
+# React / Node.js
 node_modules/
-__pycache__/
+build/
 .env
-env
-env.backup
-*.pyc
-.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python / Django
+__pycache__/
+*.py[cod]
+env/
+venv/
+*.egg-info/
+db.sqlite3
+media/
+
+# IDE
+.idea/
 .vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db

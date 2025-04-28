@@ -37,13 +37,9 @@ interface ResumeData {
   work_experience: WorkExperience[] | Record<string, WorkExperience>;
   projects: Project[] | Record<string, Project>;
   skills: string;
-  action?: string;
 }
 
-interface ChunkData {
-  type: 'basic_info' | 'education' | 'work_experience' | 'project';
-  data: BasicInfo | Education | WorkExperience | Project;
-}
+const API_BASE_URL = '/api/v1';
 
 const resumeApi = {
   generateResume: async (data: ResumeData) => {
@@ -51,56 +47,56 @@ const resumeApi = {
       const { basic_info, work_experience, projects } = data;
       
       const jobs: Record<string, any> = {};
-      if (typeof work_experience === 'object' && !Array.isArray(work_experience)) {
-        Object.entries(work_experience).forEach(([key, job], index) => {
-          jobs[`job${index + 1}`] = {
-            'company_name': job.company || null,
-            'duration': job.duration || null,
-            'position': job.position || null,
-            'keywords': job.keywords || null
-          };
-        });
-      } else if (Array.isArray(work_experience)) {
-        work_experience.forEach((job, index) => {
-          jobs[`job${index + 1}`] = {
-            'company_name': job.company || null,
-            'duration': job.duration || null,
-            'position': job.position || null,
-            'keywords': job.keywords || null
-          };
-        });
-      }
-      
       const formattedProjects: Record<string, any> = {};
-      if (typeof projects === 'object' && !Array.isArray(projects)) {
-        Object.entries(projects).forEach(([key, project], index) => {
-          formattedProjects[`project${index + 1}`] = {
-            'project_name': project.title || null,
-            'duration': project.duration || null,
-            'role': project.role || null,
-            'keywords': project.keywords || null
-          };
-        });
-      } else if (Array.isArray(projects)) {
-        projects.forEach((project, index) => {
-          formattedProjects[`project${index + 1}`] = {
-            'project_name': project.title || null,
-            'duration': project.duration || null,
-            'role': project.role || null,
-            'keywords': project.keywords || null
-          };
-        });
-      }
+      
+      const processItems = <T extends Record<string, any>>(
+        items: T[] | Record<string, T>,
+        keyPrefix: string,
+        keyMap: Record<string, string>,
+        target: Record<string, any>
+      ) => {
+        if (typeof items === 'object' && !Array.isArray(items)) {
+          Object.entries(items).forEach(([_, item], index) => {
+            const formattedItem: Record<string, any> = {};
+            Object.entries(keyMap).forEach(([origKey, newKey]) => {
+              formattedItem[newKey] = item[origKey] || null;
+            });
+            target[`${keyPrefix}${index + 1}`] = formattedItem;
+          });
+        } else if (Array.isArray(items)) {
+          items.forEach((item, index) => {
+            const formattedItem: Record<string, any> = {};
+            Object.entries(keyMap).forEach(([origKey, newKey]) => {
+              formattedItem[newKey] = item[origKey] || null;
+            });
+            target[`${keyPrefix}${index + 1}`] = formattedItem;
+          });
+        }
+      };
+      
+      processItems<WorkExperience>(work_experience, 'job', {
+        'company': 'company_name',
+        'duration': 'duration',
+        'position': 'position',
+        'keywords': 'keywords'
+      }, jobs);
+      
+      processItems<Project>(projects, 'project', {
+        'title': 'project_name',
+        'duration': 'duration',
+        'role': 'role',
+        'keywords': 'keywords'
+      }, formattedProjects);
+      
       const requestData = {
         'name': basic_info.name || null,
         'phone': basic_info.phone || null,
         'email': basic_info.email || null,
         'jobs': jobs,
         'projects': formattedProjects,
-        'action': 'generate_resume'
       };
       
-      const response = await axios.post('/api/generate-resume', requestData);
+      const response = await axios.post(`${API_BASE_URL}/resume/generate/`, requestData);
       return response.data;
     } catch (error) {
       console.error('Error generating resume:', error);
@@ -108,19 +104,9 @@ const resumeApi = {
     }
   },
 
-  addChunk: async (data: ChunkData) => {
-    try {
-      const response = await axios.post('/api/add-chunk', data);
-      return response.data;
-    } catch (error) {
-      console.error('Error adding chunk:', error);
-      throw error;
-    }
-  },
-
   generatePdf: async (html: string) => {
     try {
-      const response = await axios.post('/api/generate-pdf', { html }, {
+      const response = await axios.post(`${API_BASE_URL}/resume/export/pdf/`, { html }, {
         responseType: 'blob'
       });
       return response.data;
@@ -132,7 +118,7 @@ const resumeApi = {
 
   generateDocx: async (html: string) => {
     try {
-      const response = await axios.post('/api/generate-docx', { html }, {
+      const response = await axios.post(`${API_BASE_URL}/resume/export/docx/`, { html }, {
         responseType: 'blob'
       });
       return response.data;
@@ -144,7 +130,7 @@ const resumeApi = {
 
   chatWithAI: async (message: string, resumeHtml: string) => {
     try {
-      const response = await axios.post('/api/chat', {
+      const response = await axios.post(`${API_BASE_URL}/ai/chat/`, {
         message,
         resume_html: resumeHtml
       });
@@ -157,7 +143,7 @@ const resumeApi = {
 
   healthCheck: async () => {
     try {
-      const response = await axios.get('/api/health');
+      const response = await axios.get(`${API_BASE_URL}/health/`);
       return response.data;
     } catch (error) {
       console.error('Health check failed:', error);
