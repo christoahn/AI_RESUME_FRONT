@@ -1,50 +1,51 @@
 import React from 'react';
 import '../assets/ResumePreview.css';
 
+interface Project {
+  title: string;
+  project_duration: string;
+  description: string | string[];
+}
+interface Job {
+  company_name: string;
+  position: string;
+  work_duration: string;
+  description: string | string[];
+}
+interface Research {
+  title: string;
+  research_duration: string;
+  description: string | string[];
+}
+interface Education {
+  school_name: string;
+  degree: string;
+  graduation_year: string;
+}
+interface ResumeData {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  projects?: Project[];
+  jobs?: Job[];
+  researchs?: Research[];
+  educations?: Education[];
+}
+
 interface ResumePreviewProps {
-  resumeHTML: string;
+  resumeData: ResumeData;
   handleDownloadPDF: () => void;
   handleDownloadDOCX: () => void;
 }
 
 const ResumePreview: React.FC<ResumePreviewProps> = ({
-  resumeHTML,
+  resumeData,
   handleDownloadPDF,
   handleDownloadDOCX,
 }) => {
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Resume Print</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                padding: 20px;
-                line-height: 1.5;
-              }
-              @media print {
-                body {
-                  padding: 0;
-                }
-                @page {
-                  margin: 0.5cm;
-                }
-              }
-            </style>
-          </head>
-          <body>
-            ${resumeHTML}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
+    window.print();
   };
 
   const handleCopyLink = () => {
@@ -56,49 +57,74 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       <div className="preview-header">
         <h2>Resume Preview</h2>
         <div className="preview-actions">
-          <button 
-            className="action-btn pdf" 
-            onClick={handleDownloadPDF}
-          >
-            📄 PDF
-          </button>
-          <button 
-            className="action-btn docx" 
-            onClick={handleDownloadDOCX}
-          >
-            📝 DOCX
-          </button>
-          <button 
-            className="action-btn print" 
-            onClick={handlePrint}
-          >
-            🖨️ Print
-          </button>
-          <button 
-            className="action-btn share" 
-            onClick={handleCopyLink}
-          >
-            🔗 Share
-          </button>
+          <button className="action-btn pdf" onClick={handleDownloadPDF}>📄 PDF</button>
+          <button className="action-btn docx" onClick={handleDownloadDOCX}>📝 DOCX</button>
+          <button className="action-btn print" onClick={handlePrint}>🖨️ Print</button>
+          <button className="action-btn share" onClick={handleCopyLink}>🔗 Share</button>
         </div>
       </div>
-      
       <div className="preview-content">
-        {resumeHTML ? (
-          <>
-            <div 
-              className="resume-document"
-              dangerouslySetInnerHTML={{ __html: resumeHTML }} 
-            />
-            <div className="download-icon" onClick={handleDownloadPDF}>
-              ⬇️
-            </div>
-          </>
-        ) : (
-          <div className="empty-preview">
-            Your resume preview will appear here
-          </div>
-        )}
+        <div className="resume-document">
+          <h1>{resumeData.name}</h1>
+          <p>Email: {resumeData.email} | Phone: {resumeData.phone} | Address: {resumeData.address}</p>
+
+          {resumeData.projects && resumeData.projects.length > 0 && (
+            <section>
+              <h2>Projects</h2>
+              {resumeData.projects.map((proj, idx) => (
+                <div key={idx} className="resume-section">
+                  <h3>{proj.title}</h3>
+                  <p>Duration: {proj.project_duration}</p>
+                  {Array.isArray(proj.description)
+                    ? proj.description.map((line, i) => <div key={i}>{line}</div>)
+                    : <div>{proj.description}</div>}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {resumeData.jobs && resumeData.jobs.length > 0 && (
+            <section>
+              <h2>Work Experience</h2>
+              {resumeData.jobs.map((job, idx) => (
+                <div key={idx} className="resume-section">
+                  <h3>{job.company_name} - {job.position}</h3>
+                  <p>Duration: {job.work_duration}</p>
+                  {Array.isArray(job.description)
+                    ? job.description.map((line, i) => <div key={i}>{line}</div>)
+                    : <div>{job.description}</div>}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {resumeData.researchs && resumeData.researchs.length > 0 && (
+            <section>
+              <h2>Research</h2>
+              {resumeData.researchs.map((res, idx) => (
+                <div key={idx} className="resume-section">
+                  <h3>{res.title}</h3>
+                  <p>Duration: {res.research_duration}</p>
+                  {Array.isArray(res.description)
+                    ? res.description.map((line, i) => <div key={i}>{line}</div>)
+                    : <div>{res.description}</div>}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {resumeData.educations && resumeData.educations.length > 0 && (
+            <section>
+              <h2>Education</h2>
+              {resumeData.educations.map((edu, idx) => (
+                <div key={idx} className="resume-section">
+                  <h3>{edu.school_name}</h3>
+                  <p>{edu.degree} ({edu.graduation_year})</p>
+                </div>
+              ))}
+            </section>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -17,16 +17,16 @@ const ResumeEditor: React.FC = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [resumeHTML, setResumeHTML] = useState('');
+  const [resumeData, setResumeData] = useState<any>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const userInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const storedResumeHTML = localStorage.getItem('resumeHTML');
+    const storedResumeData = localStorage.getItem('resumeData');
     const basicInfo = JSON.parse(localStorage.getItem('basic_info') || '{}');
     
-    if (storedResumeHTML) {
-      setResumeHTML(storedResumeHTML);
+    if (storedResumeData) {
+      setResumeData(JSON.parse(storedResumeData));
     } else {
       navigate('/');
     }
@@ -51,6 +51,55 @@ const ResumeEditor: React.FC = () => {
     setMessages((prevMessages: ChatMessage[]) => [...prevMessages, { content, isUser }]);
   };
 
+  const resumeDataToHTML = (data: any) => {
+    if (!data) return '';
+    let html = `<h1>${data.name || ''}</h1>`;
+    html += `<p>Email: ${data.email || ''} | Phone: ${data.phone || ''} | Address: ${data.address || ''}</p>`;
+    if (data.projects && data.projects.length > 0) {
+      html += '<h2>Projects</h2>';
+      data.projects.forEach((proj: any) => {
+        html += `<div><h3>${proj.title}</h3><p>Duration: ${proj.project_duration}</p>`;
+        if (Array.isArray(proj.description)) {
+          proj.description.forEach((line: string) => { html += `<div>${line}</div>`; });
+        } else {
+          html += `<div>${proj.description}</div>`;
+        }
+        html += '</div>';
+      });
+    }
+    if (data.jobs && data.jobs.length > 0) {
+      html += '<h2>Work Experience</h2>';
+      data.jobs.forEach((job: any) => {
+        html += `<div><h3>${job.company_name} - ${job.position}</h3><p>Duration: ${job.work_duration}</p>`;
+        if (Array.isArray(job.description)) {
+          job.description.forEach((line: string) => { html += `<div>${line}</div>`; });
+        } else {
+          html += `<div>${job.description}</div>`;
+        }
+        html += '</div>';
+      });
+    }
+    if (data.researchs && data.researchs.length > 0) {
+      html += '<h2>Research</h2>';
+      data.researchs.forEach((res: any) => {
+        html += `<div><h3>${res.title}</h3><p>Duration: ${res.research_duration}</p>`;
+        if (Array.isArray(res.description)) {
+          res.description.forEach((line: string) => { html += `<div>${line}</div>`; });
+        } else {
+          html += `<div>${res.description}</div>`;
+        }
+        html += '</div>';
+      });
+    }
+    if (data.educations && data.educations.length > 0) {
+      html += '<h2>Education</h2>';
+      data.educations.forEach((edu: any) => {
+        html += `<div><h3>${edu.school_name}</h3><p>${edu.degree} (${edu.graduation_year})</p></div>`;
+      });
+    }
+    return html;
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
     
@@ -59,15 +108,15 @@ const ResumeEditor: React.FC = () => {
     setIsTyping(true);
     
     try {
-      const response = await resumeApi.chatWithAI(inputValue, resumeHTML);
+      const response = await resumeApi.chatWithAI(inputValue, resumeData);
       setIsTyping(false);
       
       if (response.status === 'success') {
         addMessage(response.response, false);
         
-        if (response.updated_html) {
-          setResumeHTML(response.updated_html);
-          localStorage.setItem('resumeHTML', response.updated_html);
+        if (response.updated_json) {
+          setResumeData(response.updated_json);
+          localStorage.setItem('resumeData', JSON.stringify(response.updated_json));
         }
       } else {
         addMessage("Sorry, I encountered an error processing your request.", false);
@@ -86,7 +135,7 @@ const ResumeEditor: React.FC = () => {
 
   const handleDownloadPDF = () => {
     const element = document.createElement('div');
-    element.innerHTML = resumeHTML;
+    element.innerHTML = resumeDataToHTML(resumeData);
     
     const opt = {
       margin: 10,
@@ -101,7 +150,8 @@ const ResumeEditor: React.FC = () => {
 
   const handleDownloadDOCX = async () => {
     try {
-      const blob = await resumeApi.generateDocx(resumeHTML);
+      const html = resumeDataToHTML(resumeData);
+      const blob = await resumeApi.generateDocx(html);
       
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
@@ -127,15 +177,12 @@ const ResumeEditor: React.FC = () => {
               body { 
                 font-family: 'Arial', sans-serif;
                 margin: 0;
-                padding: 0;
-              }
-              @media print {
-                body { margin: 0; padding: 20mm; }
+                padding: 20mm;
               }
             </style>
           </head>
           <body>
-            ${resumeHTML}
+            ${resumeDataToHTML(resumeData)}
             <script>
               window.onload = function() {
                 window.print();
@@ -221,11 +268,13 @@ const ResumeEditor: React.FC = () => {
       </div>
       
       <div className="preview-section">
-        <ResumePreview 
-          resumeHTML={resumeHTML}
-          handleDownloadPDF={handleDownloadPDF}
-          handleDownloadDOCX={handleDownloadDOCX}
-        />
+        {resumeData && (
+          <ResumePreview 
+            resumeData={resumeData}
+            handleDownloadPDF={handleDownloadPDF}
+            handleDownloadDOCX={handleDownloadDOCX}
+          />
+        )}
       </div>
     </div>
   );
