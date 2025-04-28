@@ -58,37 +58,19 @@ const ResumeEditor: React.FC = () => {
     if (data.projects && data.projects.length > 0) {
       html += '<h2>Projects</h2>';
       data.projects.forEach((proj: any) => {
-        html += `<div><h3>${proj.title}</h3><p>Duration: ${proj.project_duration}</p>`;
-        if (Array.isArray(proj.description)) {
-          proj.description.forEach((line: string) => { html += `<div>${line}</div>`; });
-        } else {
-          html += `<div>${proj.description}</div>`;
-        }
-        html += '</div>';
+        html += `<div><h3>${proj.title}</h3><p>Duration: ${proj.project_duration}</p></div>`;
       });
     }
     if (data.jobs && data.jobs.length > 0) {
       html += '<h2>Work Experience</h2>';
       data.jobs.forEach((job: any) => {
-        html += `<div><h3>${job.company_name} - ${job.position}</h3><p>Duration: ${job.work_duration}</p>`;
-        if (Array.isArray(job.description)) {
-          job.description.forEach((line: string) => { html += `<div>${line}</div>`; });
-        } else {
-          html += `<div>${job.description}</div>`;
-        }
-        html += '</div>';
+        html += `<div><h3>${job.company_name} - ${job.position}</h3><p>Duration: ${job.work_duration}</p></div>`;
       });
     }
     if (data.researchs && data.researchs.length > 0) {
       html += '<h2>Research</h2>';
       data.researchs.forEach((res: any) => {
-        html += `<div><h3>${res.title}</h3><p>Duration: ${res.research_duration}</p>`;
-        if (Array.isArray(res.description)) {
-          res.description.forEach((line: string) => { html += `<div>${line}</div>`; });
-        } else {
-          html += `<div>${res.description}</div>`;
-        }
-        html += '</div>';
+        html += `<div><h3>${res.title}</h3><p>Duration: ${res.research_duration}</p></div>`;
       });
     }
     if (data.educations && data.educations.length > 0) {

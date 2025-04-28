@@ -4,18 +4,15 @@ import '../assets/ResumePreview.css';
 interface Project {
   title: string;
   project_duration: string;
-  description: string | string[];
 }
 interface Job {
   company_name: string;
   position: string;
   work_duration: string;
-  description: string | string[];
 }
 interface Research {
   title: string;
   research_duration: string;
-  description: string | string[];
 }
 interface Education {
   school_name: string;
@@ -75,9 +72,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 <div key={idx} className="resume-section">
                   <h3>{proj.title}</h3>
                   <p>Duration: {proj.project_duration}</p>
-                  {Array.isArray(proj.description)
-                    ? proj.description.map((line, i) => <div key={i}>{line}</div>)
-                    : <div>{proj.description}</div>}
                 </div>
               ))}
             </section>
@@ -90,9 +84,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 <div key={idx} className="resume-section">
                   <h3>{job.company_name} - {job.position}</h3>
                   <p>Duration: {job.work_duration}</p>
-                  {Array.isArray(job.description)
-                    ? job.description.map((line, i) => <div key={i}>{line}</div>)
-                    : <div>{job.description}</div>}
                 </div>
               ))}
             </section>
@@ -105,9 +96,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 <div key={idx} className="resume-section">
                   <h3>{res.title}</h3>
                   <p>Duration: {res.research_duration}</p>
-                  {Array.isArray(res.description)
-                    ? res.description.map((line, i) => <div key={i}>{line}</div>)
-                    : <div>{res.description}</div>}
                 </div>
               ))}
             </section>
