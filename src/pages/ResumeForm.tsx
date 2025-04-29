@@ -32,7 +32,6 @@ interface Project {
   position: string;
   duration: string;
   keywords: string;
-  description: string[];
 }
 
 interface Research {
@@ -74,8 +73,7 @@ const ResumeForm: React.FC = () => {
     title: '',
     position: '',
     duration: '',
-    keywords: '',
-    description: []
+    keywords: ''
   }]);
   
   const [researchesList, setResearchesList] = useState<Research[]>([{
@@ -118,11 +116,7 @@ const ResumeForm: React.FC = () => {
   const handleProjectChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const updatedProjects = [...projectList];
-    if (name === 'description') {
-      updatedProjects[index].description = value.split('\n');
-    } else {
-      updatedProjects[index][name as keyof Omit<Project, 'description'>] = value;
-    }
+    updatedProjects[index][name as keyof Omit<Project, 'description'>] = value;
     setProjectList(updatedProjects);
   };
   
@@ -173,8 +167,7 @@ const ResumeForm: React.FC = () => {
       title: '',
       position: '',
       duration: '',
-      keywords: '',
-      description: []
+      keywords: ''
     }]);
   };
   
@@ -284,7 +277,7 @@ const ResumeForm: React.FC = () => {
       case 3: 
         return projectList.every(proj => proj.title && proj.position && proj.duration && proj.keywords);
       case 4: 
-        return researchesList.every(res => res.title && res.research_duration && res.keywords);
+        return true;
       case 5: 
         return skills.trim() !== '';
       default:
@@ -561,17 +554,6 @@ const ResumeForm: React.FC = () => {
                     required 
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor={`description-${index}`}>Description</label>
-                  <textarea
-                    id={`description-${index}`}
-                    name="description"
-                    value={proj.description.join('\n')}
-                    onChange={(e) => handleProjectChange(index, e)}
-                    placeholder="Enter each line of your project description on a new line"
-                    required
-                  />
-                </div>
                 {projectList.length > 1 && (
                   <button type="button" className="remove-btn" onClick={() => removeProject(index)}>
                     Remove Project
@@ -676,41 +658,45 @@ const ResumeForm: React.FC = () => {
           </div>
         ))}
       </div>
-      
-      <form onSubmit={handleSubmit}>
-        {renderStep()}
-        
-        <div className="button-group">
-          {currentStep > 0 && (
-            <button 
-              type="button" 
-              className="prev-btn" 
-              onClick={prevStep}
-            >
-              Previous
-            </button>
-          )}
-          
-          {currentStep < steps.length - 1 ? (
-            <button 
-              type="button" 
-              className="next-btn" 
-              onClick={nextStep}
-              disabled={!validateCurrentStep()}
-            >
-              Next
-            </button>
-          ) : (
-            <button 
-              type="submit" 
-              className="submit-btn"
-              disabled={loading || !validateCurrentStep()}
-            >
-              {loading ? 'Generating...' : 'Generate Resume'}
-            </button>
-          )}
+      {loading ? (
+        <div className="spinner">
+          <div className="spinner-circle"></div>
+          <div style={{marginTop: '20px', fontWeight: 'bold'}}>Generating Resume...</div>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          {renderStep()}
+          <div className="button-group">
+            {currentStep > 0 && (
+              <button 
+                type="button" 
+                className="prev-btn" 
+                onClick={prevStep}
+              >
+                Previous
+              </button>
+            )}
+            {currentStep < steps.length - 1 ? (
+              <button 
+                type="button" 
+                className="next-btn" 
+                onClick={nextStep}
+                disabled={!validateCurrentStep()}
+              >
+                Next
+              </button>
+            ) : (
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading || !validateCurrentStep()}
+              >
+                {loading ? 'Generating...' : 'Generate Resume'}
+              </button>
+            )}
+          </div>
+        </form>
+      )}
     </div>
   );
 };
