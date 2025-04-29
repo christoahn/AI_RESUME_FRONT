@@ -231,6 +231,16 @@ const resumeApi = {
       console.error('Health check failed:', error);
       throw error;
     }
+  },
+
+  updateResume: async (resumeId: number, updatedData: any) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/resume_preview`, updatedData, { params: { resume_id: resumeId } });
+      return response.data;
+    } catch (err) {
+      console.error('Error updating resume', err);
+      throw err;
+    }
   }
 };
 

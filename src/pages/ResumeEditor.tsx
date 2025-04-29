@@ -21,28 +21,28 @@ const ResumeEditor: React.FC = () => {
   const [resumeData, setResumeData] = useState<any>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const userInputRef = useRef<HTMLInputElement>(null);
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get('resume_id');
 
   useEffect(() => {
-    const [SearchParams] = useSearchParams();
-    const resumeId = SearchParams.get('resume_id');
-    const storedResumeData = resumeApi.getResume(Number(resumeId)); // 이놈의 리턴값은 JSON 형태이다
-    const basicInfo = JSON.parse(localStorage.getItem('basic_info') || '{}');
-    
-    if (storedResumeData) {
-      setResumeData(JSON.parse(storedResumeData));
-    } else {
+    if (!resumeId) {
       navigate('/');
+      return;
     }
-
-    if (basicInfo.name && messages.length === 1) {
-      setMessages([
-        { 
-          content: `Hello, ${basicInfo.name}! I'm your resume assistant. I can help you optimize your resume. What would you like to improve?`, 
-          isUser: false 
+    const fetchResume = async () => {
+      try {
+        const data = await resumeApi.getResume(Number(resumeId));
+        if (data) {
+          setResumeData(data);
+        } else {
+          navigate('/');
         }
-      ]);
-    }
-  }, [navigate, messages.length]);
+      } catch (err) {
+        navigate('/');
+      }
+    };
+    fetchResume();
+  }, [resumeId, navigate]);
 
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -87,21 +87,19 @@ const ResumeEditor: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
-    
     addMessage(inputValue, true);
     setInputValue('');
     setIsTyping(true);
-    
     try {
       const response = await resumeApi.chatWithAI(inputValue, resumeData);
       setIsTyping(false);
-      
       if (response.status === 'success') {
         addMessage(response.response, false);
-        
         if (response.updated_json) {
           setResumeData(response.updated_json);
-          localStorage.setItem('resumeData', JSON.stringify(response.updated_json));
+          if (resumeId) {
+            await resumeApi.updateResume(Number(resumeId), response.updated_json);
+          }
         }
       } else {
         addMessage("Sorry, I encountered an error processing your request.", false);
