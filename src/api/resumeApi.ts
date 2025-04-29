@@ -175,6 +175,17 @@ const resumeApi = {
     }
   },
 
+  // Get Stored resume from database at third page
+  getResume: async (resumeId: number) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/resume_preview`, {params: {resume_id: resumeId}});
+      return response.data;
+    } catch (err) {
+      console.error('Error fetching resume', err);
+      throw err;
+    }
+  },
+
   generatePdf: async (html: string) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {

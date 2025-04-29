@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
 import '../assets/ResumeEditor.css';
 import resumeApi from '../api/resumeApi';
@@ -22,7 +23,9 @@ const ResumeEditor: React.FC = () => {
   const userInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const storedResumeData = localStorage.getItem('resumeData');
+    const [SearchParams] = useSearchParams();
+    const resumeId = SearchParams.get('resume_id');
+    const storedResumeData = resumeApi.getResume(Number(resumeId)); // 이놈의 리턴값은 JSON 형태이다
     const basicInfo = JSON.parse(localStorage.getItem('basic_info') || '{}');
     
     if (storedResumeData) {
