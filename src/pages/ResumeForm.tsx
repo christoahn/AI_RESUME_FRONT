@@ -245,22 +245,26 @@ const ResumeForm: React.FC = () => {
         researches: researchesObj,
         skills: skills
       };
-      
-      localStorage.setItem('basic_info', JSON.stringify(basicInfo));
-      localStorage.setItem('education', JSON.stringify(educationObj)); 
-      localStorage.setItem('work_experience', JSON.stringify(workExperienceObj)); 
-      localStorage.setItem('projects', JSON.stringify(projectsObj)); 
-      localStorage.setItem('researches', JSON.stringify(researchesObj));
-      localStorage.setItem('skills', skills);
+      // 더 이상 로컬 스토리지 사용 안함
+      // localStorage.setItem('basic_info', JSON.stringify(basicInfo));
+      // localStorage.setItem('education', JSON.stringify(educationObj)); 
+      // localStorage.setItem('work_experience', JSON.stringify(workExperienceObj)); 
+      // localStorage.setItem('projects', JSON.stringify(projectsObj)); 
+      // localStorage.setItem('researches', JSON.stringify(researchesObj));
+      // localStorage.setItem('skills', skills);
 
-      const response = await resumeApi.generateResume(formattedData);
+      // const response = await resumeApi.generateResume(formattedData);
 
-      if (response.status === 'success') {
-        localStorage.setItem('resumeHTML', response.result);
-        navigate('/resume');
-      } else {
-        alert('Failed to generate resume: ' + response.message);
-      }
+      // if (response.status === 'success') {
+      //   localStorage.setItem('resumeHTML', response.result);
+      //   navigate('/resume');
+      // } else {
+      //   alert('Failed to generate resume: ' + response.message);
+      // }
+      const {data} = await resumeApi.generateResume(formattedData);
+      const resumeId = data.resume_id;
+      navigate(`/resume_preview?resume_id=${resumeId}`);
+
     } catch (error) {
       console.error('Error generating resume:', error);
       alert('Error generating resume. Please try again.');
@@ -268,7 +272,6 @@ const ResumeForm: React.FC = () => {
       setLoading(false);
     }
   };
-
 
   const validateCurrentStep = () => {
     switch (currentStep) {
