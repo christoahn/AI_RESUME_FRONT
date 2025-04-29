@@ -239,6 +239,7 @@ const ResumeForm: React.FC = () => {
         skills: skills
       };
       // 더 이상 로컬 스토리지 사용 안함
+      // 프엔에서 db.sqlite3 에 저장된 resume 를 resume id 에 기반해서 가져올꺼임
       // localStorage.setItem('basic_info', JSON.stringify(basicInfo));
       // localStorage.setItem('education', JSON.stringify(educationObj)); 
       // localStorage.setItem('work_experience', JSON.stringify(workExperienceObj)); 
