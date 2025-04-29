@@ -25,6 +25,7 @@ const ResumeEditor: React.FC = () => {
   const resumeId = searchParams.get('resume_id');
 
   useEffect(() => {
+    console.log("This is resume editor")
     if (!resumeId) {
       navigate('/');
       return;

@@ -255,8 +255,13 @@ const ResumeForm: React.FC = () => {
       // } else {
       //   alert('Failed to generate resume: ' + response.message);
       // }
-      const {data} = await resumeApi.generateResume(formattedData);
+      const data = await resumeApi.generateResume(formattedData);
+      console.log('generatRume 응답: ', data);
       const resumeId = data.resume_id;
+      if (!resumeId) {
+        alert('No resume id!');
+        return;
+      }
       navigate(`/resume_preview?resume_id=${resumeId}`);
 
     } catch (error) {

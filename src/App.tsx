@@ -11,6 +11,7 @@ const App: React.FC = () => {
       <div className="content-container">
         <div className="main-content">
           <Routes>
+            <Route path="/" element={<ResumeForm />} />
             <Route path="/basicinfos" element={<ResumeForm />} />
             <Route path="/resume_preview" element={<ResumeEditor />} />
             <Route path="/my-page" element={<div>My Page Content</div>} />
