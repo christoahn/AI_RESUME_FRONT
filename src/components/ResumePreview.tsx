@@ -2,30 +2,36 @@ import React from 'react';
 import '../assets/ResumePreview.css';
 
 interface Project {
-  title: string;
+  title?: string;
+  name?: string;
+  position?: string;
   duration: string;
-  description: string;
+  description?: string | string[];
 }
 
 interface Job {
-  company_name: string;
-  position: string;
+  company_name?: string;
+  name?: string;
+  position?: string;
   duration: string;
-  description: string;
+  description?: string | string[];
 }
 
 interface Research {
-  title: string;
+  title?: string;
+  name?: string;
   duration: string;
-  description: string;
+  description?: string | string[];
 }
 
 interface Education {
-  school_name: string;
+  school_name?: string;
+  name?: string;
   degree: string;
   duration: string;
   major: string;
   gpa?: string;
+  description?: string | string[];
 }
 
 interface ResumeData {
