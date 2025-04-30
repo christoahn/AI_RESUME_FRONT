@@ -51,6 +51,10 @@ const ResumeEditor: React.FC = () => {
     }
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    console.log('resumeData:', resumeData);
+  }, [resumeData]);
+
   const addMessage = (content: string, isUser: boolean) => {
     setMessages((prevMessages: ChatMessage[]) => [...prevMessages, { content, isUser }]);
   };
@@ -257,9 +261,15 @@ const ResumeEditor: React.FC = () => {
       </div>
       
       <div className="preview-section">
-        {resumeData && (
+        {resumeData && resumeData.data && (
           <ResumePreview 
-            resumeData={resumeData}
+            resumeData={{
+              ...resumeData.data,
+              projects: Object.values(resumeData.data.projects || {}),
+              jobs: Object.values(resumeData.data.jobs || {}),
+              educations: Object.values(resumeData.data.educations || {}),
+              researchs: Object.values(resumeData.data.researches || {}),
+            }}
             handleDownloadPDF={handleDownloadPDF}
             handleDownloadDOCX={handleDownloadDOCX}
           />
