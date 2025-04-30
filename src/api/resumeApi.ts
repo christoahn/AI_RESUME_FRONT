@@ -15,26 +15,30 @@ interface Education {
   major: string;
   duration: string;
   gpa?: string;
+  description?: string;
 }
 
 interface WorkExperience {
   name: string;
   position: string;
   duration: string;
-  keywords: string;
+  description: string;
+  keywords?: string;
 }
 
 interface Project {
   name: string;
   position: string;
   duration: string;
-  keywords: string;
+  description: string;
+  keywords?: string;
 }
 
 interface Research {
   name: string;
   duration: string;
-  keywords: string;
+  description: string;
+  keywords?: string;
 }
 
 interface ResumeData {
@@ -71,6 +75,7 @@ const resumeApi = {
             'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
+            'description': formatValue(job.description),
             'keywords': formatValue(job.keywords)
           };
         });
@@ -80,6 +85,7 @@ const resumeApi = {
             'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
+            'description': formatValue(job.description),
             'keywords': formatValue(job.keywords)
           };
         });
@@ -93,6 +99,7 @@ const resumeApi = {
             'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
+            'description': formatValue(project.description),
             'keywords': formatValue(project.keywords)
           };
         });
@@ -102,6 +109,7 @@ const resumeApi = {
             'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
+            'description': formatValue(project.description),
             'keywords': formatValue(project.keywords)
           };
         });
@@ -114,6 +122,7 @@ const resumeApi = {
           formattedResearches[`research${index + 1}`] = {
             'name': formatValue(research.name),
             'duration': formatValue(research.duration),
+            'description': formatValue(research.description),
             'keywords': formatValue(research.keywords)
           };
         });
@@ -122,6 +131,7 @@ const resumeApi = {
           formattedResearches[`research${index + 1}`] = {
             'name': formatValue(research.name),
             'duration': formatValue(research.duration),
+            'description': formatValue(research.description),
             'keywords': formatValue(research.keywords)
           };
         });
@@ -136,7 +146,8 @@ const resumeApi = {
             'degree': formatValue(edu.degree),
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
-            'gpa': formatValue(edu.gpa)
+            'gpa': formatValue(edu.gpa),
+            'description': formatValue(edu.description)
           };
         });
       } else if (Array.isArray(education)) {
@@ -146,7 +157,8 @@ const resumeApi = {
             'degree': formatValue(edu.degree),
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
-            'gpa': formatValue(edu.gpa)
+            'gpa': formatValue(edu.gpa),
+            'description': formatValue(edu.description)
           };
         });
       }
