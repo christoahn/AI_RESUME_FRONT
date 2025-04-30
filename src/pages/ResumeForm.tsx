@@ -381,7 +381,7 @@ const ResumeForm: React.FC = () => {
                   <input 
                     type="text" 
                     id={`school-${index}`} 
-                    name="school" 
+                    name="name" 
                     value={edu.name}
                     onChange={(e) => handleEducationChange(index, e)}
                     required 
@@ -458,7 +458,7 @@ const ResumeForm: React.FC = () => {
                   <input 
                     type="text" 
                     id={`company-${index}`} 
-                    name="company" 
+                    name="name" 
                     value={exp.name}
                     onChange={(e) => handleWorkExperienceChange(index, e)}
                     required 
@@ -523,7 +523,7 @@ const ResumeForm: React.FC = () => {
                   <input 
                     type="text" 
                     id={`title-${index}`} 
-                    name="title" 
+                    name="name" 
                     value={proj.name}
                     onChange={(e) => handleProjectChange(index, e)}
                     required 
@@ -589,7 +589,7 @@ const ResumeForm: React.FC = () => {
                   <input
                     type="text"
                     id={`title-${index}`}
-                    name="title"
+                    name="name"
                     value={res.name}
                     onChange={(e) => handleResearchChange(index, e)}
                     required
@@ -600,7 +600,7 @@ const ResumeForm: React.FC = () => {
                   <input
                     type="text"
                     id={`research_duration-${index}`}
-                    name="research_duration"
+                    name="duration"
                     value={res.duration}
                     onChange={(e) => handleResearchChange(index, e)}
                     placeholder="MM/YYYY - MM/YYYY"
