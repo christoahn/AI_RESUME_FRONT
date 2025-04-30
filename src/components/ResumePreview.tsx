@@ -3,22 +3,31 @@ import '../assets/ResumePreview.css';
 
 interface Project {
   title: string;
-  project_duration: string;
+  duration: string;
+  description: string;
 }
+
 interface Job {
   company_name: string;
   position: string;
-  work_duration: string;
+  duration: string;
+  description: string;
 }
+
 interface Research {
   title: string;
-  research_duration: string;
+  duration: string;
+  description: string;
 }
+
 interface Education {
   school_name: string;
   degree: string;
-  graduation_year: string;
+  duration: string;
+  major: string;
+  gpa?: string;
 }
+
 interface ResumeData {
   name: string;
   phone: string;
@@ -71,7 +80,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               {resumeData.projects.map((proj, idx) => (
                 <div key={idx} className="resume-section">
                   <h3>{proj.title}</h3>
-                  <p>Duration: {proj.project_duration}</p>
+                  <p>Duration: {proj.duration}</p>
+                  <p>{proj.description}</p>
                 </div>
               ))}
             </section>
@@ -83,7 +93,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               {resumeData.jobs.map((job, idx) => (
                 <div key={idx} className="resume-section">
                   <h3>{job.company_name} - {job.position}</h3>
-                  <p>Duration: {job.work_duration}</p>
+                  <p>Duration: {job.duration}</p>
+                  <p>{job.description}</p>
                 </div>
               ))}
             </section>
@@ -95,7 +106,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               {resumeData.researchs.map((res, idx) => (
                 <div key={idx} className="resume-section">
                   <h3>{res.title}</h3>
-                  <p>Duration: {res.research_duration}</p>
+                  <p>Duration: {res.duration}</p>
+                  <p>{res.description}</p>
                 </div>
               ))}
             </section>
@@ -107,7 +119,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               {resumeData.educations.map((edu, idx) => (
                 <div key={idx} className="resume-section">
                   <h3>{edu.school_name}</h3>
-                  <p>{edu.degree} ({edu.graduation_year})</p>
+                  <p>{edu.degree} ({edu.duration})</p>
+                  <p>Major: {edu.major}</p>
+                  {edu.gpa && <p>GPA: {edu.gpa}</p>}
                 </div>
               ))}
             </section>

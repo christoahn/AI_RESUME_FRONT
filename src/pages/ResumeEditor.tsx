@@ -59,30 +59,35 @@ const ResumeEditor: React.FC = () => {
     if (!data) return '';
     let html = `<h1>${data.name || ''}</h1>`;
     html += `<p>Email: ${data.email || ''} | Phone: ${data.phone || ''} | Address: ${data.address || ''}</p>`;
+    
     if (data.projects && data.projects.length > 0) {
       html += '<h2>Projects</h2>';
       data.projects.forEach((proj: any) => {
-        html += `<div><h3>${proj.title}</h3><p>Duration: ${proj.project_duration}</p></div>`;
+        html += `<div><h3>${proj.name}</h3><p>Duration: ${proj.duration}</p><p>${proj.description}</p></div>`;
       });
     }
+    
     if (data.jobs && data.jobs.length > 0) {
       html += '<h2>Work Experience</h2>';
       data.jobs.forEach((job: any) => {
-        html += `<div><h3>${job.company_name} - ${job.position}</h3><p>Duration: ${job.work_duration}</p></div>`;
+        html += `<div><h3>${job.name} - ${job.position}</h3><p>Duration: ${job.duration}</p><p>${job.description}</p></div>`;
       });
     }
+    
     if (data.researchs && data.researchs.length > 0) {
       html += '<h2>Research</h2>';
       data.researchs.forEach((res: any) => {
-        html += `<div><h3>${res.title}</h3><p>Duration: ${res.research_duration}</p></div>`;
+        html += `<div><h3>${res.name}</h3><p>Duration: ${res.duration}</p><p>${res.description}</p></div>`;
       });
     }
+    
     if (data.educations && data.educations.length > 0) {
       html += '<h2>Education</h2>';
       data.educations.forEach((edu: any) => {
-        html += `<div><h3>${edu.school_name}</h3><p>${edu.degree} (${edu.graduation_year})</p></div>`;
+        html += `<div><h3>${edu.name}</h3><p>${edu.degree} (${edu.duration})</p><p>Major: ${edu.major}</p>${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}</div>`;
       });
     }
+    
     return html;
   };
 

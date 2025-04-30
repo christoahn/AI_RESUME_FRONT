@@ -195,9 +195,29 @@ const ResumeForm: React.FC = () => {
     }
   };
 
-  const nextStep = () => {
-    setCurrentStep(current => Math.min(current + 1, steps.length - 1));
-    window.scrollTo(0, 0);
+  const handleNext = () => {
+    if (currentStep === 0) {
+      if (!basicInfo.name || !basicInfo.email || !basicInfo.phone || !basicInfo.address) {
+        alert('Please fill in all basic information fields');
+        return;
+      }
+    } else if (currentStep === 1) {
+      if (educationList.length === 0) {
+        alert('Please add at least one education entry');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (workExperienceList.length === 0) {
+        alert('Please add at least one work experience entry');
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (researchesList.length === 0) {
+        alert('Please add at least one research entry');
+        return;
+      }
+    }
+    setCurrentStep(prev => prev + 1);
   };
 
   const prevStep = () => {
@@ -281,7 +301,7 @@ const ResumeForm: React.FC = () => {
       case 2: 
         return true; 
       case 3: 
-        return projectList.every(proj => proj.title && proj.position && proj.duration && proj.keywords);
+        return true;
       case 4: 
         return true;
       case 5: 
@@ -686,7 +706,7 @@ const ResumeForm: React.FC = () => {
               <button 
                 type="button" 
                 className="next-btn" 
-                onClick={nextStep}
+                onClick={handleNext}
                 disabled={!validateCurrentStep()}
               >
                 Next

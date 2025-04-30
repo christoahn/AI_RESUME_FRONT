@@ -10,7 +10,7 @@ interface BasicInfo {
 }
 
 interface Education {
-  school: string;
+  name: string;
   degree: string;
   major: string;
   duration: string;
@@ -18,22 +18,22 @@ interface Education {
 }
 
 interface WorkExperience {
-  company: string;
+  name: string;
   position: string;
   duration: string;
   keywords: string;
 }
 
 interface Project {
-  title: string;
+  name: string;
   position: string;
   duration: string;
   keywords: string;
 }
 
 interface Research {
-  title: string;
-  research_duration: string;
+  name: string;
+  duration: string;
   keywords: string;
 }
 
@@ -46,7 +46,7 @@ interface ResumeData {
   skills: string;
 }
 
-const API_BASE_URL = '/api/resume';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 // 값이 비어있는지 확인하는 함수
 const isEmpty = (value: any): boolean => {
@@ -68,7 +68,7 @@ const resumeApi = {
       if (typeof work_experience === 'object' && !Array.isArray(work_experience)) {
         Object.entries(work_experience).forEach(([key, job], index) => {
           jobs[`job${index + 1}`] = {
-            'company_name': formatValue(job.company),
+            'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
             'keywords': formatValue(job.keywords)
@@ -77,7 +77,7 @@ const resumeApi = {
       } else if (Array.isArray(work_experience)) {
         work_experience.forEach((job, index) => {
           jobs[`job${index + 1}`] = {
-            'company_name': formatValue(job.company),
+            'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
             'keywords': formatValue(job.keywords)
@@ -90,7 +90,7 @@ const resumeApi = {
       if (typeof projects === 'object' && !Array.isArray(projects)) {
         Object.entries(projects).forEach(([key, project], index) => {
           formattedProjects[`project${index + 1}`] = {
-            'project_name': formatValue(project.title),
+            'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
             'keywords': formatValue(project.keywords)
@@ -99,7 +99,7 @@ const resumeApi = {
       } else if (Array.isArray(projects)) {
         projects.forEach((project, index) => {
           formattedProjects[`project${index + 1}`] = {
-            'project_name': formatValue(project.title),
+            'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
             'keywords': formatValue(project.keywords)
@@ -112,16 +112,16 @@ const resumeApi = {
       if (typeof researches === 'object' && !Array.isArray(researches)) {
         Object.entries(researches).forEach(([key, research], index) => {
           formattedResearches[`research${index + 1}`] = {
-            'title': formatValue(research.title),
-            'research_duration': formatValue(research.research_duration),
+            'name': formatValue(research.name),
+            'duration': formatValue(research.duration),
             'keywords': formatValue(research.keywords)
           };
         });
       } else if (Array.isArray(researches)) {
         researches.forEach((research, index) => {
           formattedResearches[`research${index + 1}`] = {
-            'title': formatValue(research.title),
-            'research_duration': formatValue(research.research_duration),
+            'name': formatValue(research.name),
+            'duration': formatValue(research.duration),
             'keywords': formatValue(research.keywords)
           };
         });
@@ -132,7 +132,7 @@ const resumeApi = {
       if (typeof education === 'object' && !Array.isArray(education)) {
         Object.entries(education).forEach(([key, edu], index) => {
           formattedEducation[`education${index + 1}`] = {
-            'school': formatValue(edu.school),
+            'name': formatValue(edu.name),
             'degree': formatValue(edu.degree),
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
@@ -142,7 +142,7 @@ const resumeApi = {
       } else if (Array.isArray(education)) {
         education.forEach((edu, index) => {
           formattedEducation[`education${index + 1}`] = {
-            'school': formatValue(edu.school),
+            'name': formatValue(edu.name),
             'degree': formatValue(edu.degree),
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
@@ -178,13 +178,11 @@ const resumeApi = {
 
   // Get Stored resume from database at third page
   getResume: async (resumeId: number) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/resume_preview`, {params: {resume_id: resumeId}});
-      return response.data;
-    } catch (err) {
-      console.error('Error fetching resume', err);
-      throw err;
+    const response = await fetch(`${API_BASE_URL}/resume/resume_preview?resume_id=${resumeId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch resume');
     }
+    return response.json();
   },
 
   generatePdf: async (html: string) => {
