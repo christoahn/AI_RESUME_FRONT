@@ -84,20 +84,23 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <section>
               <h2>Projects</h2>
               {resumeData.projects.map((proj, idx) => {
-                console.log('proj.description:', proj.description, typeof proj.description, Array.isArray(proj.description));
+                let desc = proj.description;
+                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+                  try {
+                    desc = JSON.parse(desc.replace(/'/g, '"'));
+                  } catch (e) {}
+                }
                 return (
                   <div key={idx} className="resume-section">
                     <h3>{proj.name}</h3>
                     {proj.position && <p>Position: {proj.position}</p>}
                     <p>Duration: {proj.duration}</p>
-                    {Array.isArray(proj.description) ? (
+                    {Array.isArray(desc) ? (
                       <ul>
-                        {proj.description.map((desc, i) => (
-                          <li key={i}>{desc}</li>
-                        ))}
+                        {desc.map((d, i) => <li key={i}>{d}</li>)}
                       </ul>
                     ) : (
-                      <p>{proj.description}</p>
+                      <p>{desc}</p>
                     )}
                   </div>
                 );
