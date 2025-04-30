@@ -175,7 +175,7 @@ const resumeApi = {
         'action': 'generate_resume'
       };
       
-      const response = await axios.post(`${API_BASE_URL}/basicinfos/`, requestData);
+      const response = await axios.post(`${API_BASE_URL}/resume/basicinfos/`, requestData);
       console.log("Response.data 값: ", response.data)
       return response.data;
     } catch (error) {
