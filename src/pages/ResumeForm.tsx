@@ -13,7 +13,7 @@ interface BasicInfo {
 }
 
 interface Education {
-  school: string;
+  name: string;
   degree: string;
   major: string;
   duration: string;
@@ -21,22 +21,22 @@ interface Education {
 }
 
 interface WorkExperience {
-  company: string;
+  name: string;
   position: string;
   duration: string;
   keywords: string;
 }
 
 interface Project {
-  title: string;
+  name: string;
   position: string;
   duration: string;
   keywords: string;
 }
 
 interface Research {
-  title: string;
-  research_duration: string;
+  name: string;
+  duration: string;
   keywords: string;
 }
 
@@ -55,7 +55,7 @@ const ResumeForm: React.FC = () => {
   });
   
   const [educationList, setEducationList] = useState<Education[]>([{
-    school: '',
+    name: '',
     degree: '',
     major: '',
     duration: '',
@@ -63,22 +63,22 @@ const ResumeForm: React.FC = () => {
   }]);
   
   const [workExperienceList, setWorkExperienceList] = useState<WorkExperience[]>([{
-    company: '',
+    name: '',
     position: '',
     duration: '',
     keywords: ''
   }]);
   
   const [projectList, setProjectList] = useState<Project[]>([{
-    title: '',
+    name: '',
     position: '',
     duration: '',
     keywords: ''
   }]);
   
   const [researchesList, setResearchesList] = useState<Research[]>([{
-    title: '',
-    research_duration: '',
+    name: '',
+    duration: '',
     keywords: ''
   }]);
   
@@ -129,7 +129,7 @@ const ResumeForm: React.FC = () => {
   
   const addEducation = () => {
     setEducationList([...educationList, {
-      school: '',
+      name: '',
       degree: '',
       major: '',
       duration: '',
@@ -147,7 +147,7 @@ const ResumeForm: React.FC = () => {
   
   const addWorkExperience = () => {
     setWorkExperienceList([...workExperienceList, {
-      company: '',
+      name: '',
       position: '',
       duration: '',
       keywords: ''
@@ -164,7 +164,7 @@ const ResumeForm: React.FC = () => {
   
   const addProject = () => {
     setProjectList([...projectList, {
-      title: '',
+      name: '',
       position: '',
       duration: '',
       keywords: ''
@@ -181,8 +181,8 @@ const ResumeForm: React.FC = () => {
 
   const addResearch = () => {
     setResearchesList([...researchesList, {
-      title: '',
-      research_duration: '',
+      name: '',
+      duration: '',
       keywords: ''
     }]);
   };
@@ -258,23 +258,7 @@ const ResumeForm: React.FC = () => {
         researches: researchesObj,
         skills: skills
       };
-      // 더 이상 로컬 스토리지 사용 안함
-      // 프엔에서 db.sqlite3 에 저장된 resume 를 resume id 에 기반해서 가져올꺼임
-      // localStorage.setItem('basic_info', JSON.stringify(basicInfo));
-      // localStorage.setItem('education', JSON.stringify(educationObj)); 
-      // localStorage.setItem('work_experience', JSON.stringify(workExperienceObj)); 
-      // localStorage.setItem('projects', JSON.stringify(projectsObj)); 
-      // localStorage.setItem('researches', JSON.stringify(researchesObj));
-      // localStorage.setItem('skills', skills);
-
-      // const response = await resumeApi.generateResume(formattedData);
-
-      // if (response.status === 'success') {
-      //   localStorage.setItem('resumeHTML', response.result);
-      //   navigate('/resume');
-      // } else {
-      //   alert('Failed to generate resume: ' + response.message);
-      // }
+      
       const data = await resumeApi.generateResume(formattedData);
       console.log('generatRume 응답: ', data);
       const resumeId = data.resume_id;
@@ -398,7 +382,7 @@ const ResumeForm: React.FC = () => {
                     type="text" 
                     id={`school-${index}`} 
                     name="school" 
-                    value={edu.school}
+                    value={edu.name}
                     onChange={(e) => handleEducationChange(index, e)}
                     required 
                   />
@@ -475,7 +459,7 @@ const ResumeForm: React.FC = () => {
                     type="text" 
                     id={`company-${index}`} 
                     name="company" 
-                    value={exp.company}
+                    value={exp.name}
                     onChange={(e) => handleWorkExperienceChange(index, e)}
                     required 
                   />
@@ -540,7 +524,7 @@ const ResumeForm: React.FC = () => {
                     type="text" 
                     id={`title-${index}`} 
                     name="title" 
-                    value={proj.title}
+                    value={proj.name}
                     onChange={(e) => handleProjectChange(index, e)}
                     required 
                   />
@@ -606,7 +590,7 @@ const ResumeForm: React.FC = () => {
                     type="text"
                     id={`title-${index}`}
                     name="title"
-                    value={res.title}
+                    value={res.name}
                     onChange={(e) => handleResearchChange(index, e)}
                     required
                   />
@@ -617,7 +601,7 @@ const ResumeForm: React.FC = () => {
                     type="text"
                     id={`research_duration-${index}`}
                     name="research_duration"
-                    value={res.research_duration}
+                    value={res.duration}
                     onChange={(e) => handleResearchChange(index, e)}
                     placeholder="MM/YYYY - MM/YYYY"
                     required
