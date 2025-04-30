@@ -79,9 +79,18 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <h2>Projects</h2>
               {resumeData.projects.map((proj, idx) => (
                 <div key={idx} className="resume-section">
-                  <h3>{proj.title}</h3>
+                  <h3>{proj.name}</h3>
+                  {proj.position && <p>Position: {proj.position}</p>}
                   <p>Duration: {proj.duration}</p>
-                  <p>{proj.description}</p>
+                  {Array.isArray(proj.description) ? (
+                    <ul>
+                      {proj.description.map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{proj.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -92,9 +101,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <h2>Work Experience</h2>
               {resumeData.jobs.map((job, idx) => (
                 <div key={idx} className="resume-section">
-                  <h3>{job.company_name} - {job.position}</h3>
+                  <h3>{job.name} - {job.position}</h3>
                   <p>Duration: {job.duration}</p>
-                  <p>{job.description}</p>
+                  {Array.isArray(job.description) ? (
+                    <ul>
+                      {job.description.map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{job.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -105,9 +122,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <h2>Research</h2>
               {resumeData.researchs.map((res, idx) => (
                 <div key={idx} className="resume-section">
-                  <h3>{res.title}</h3>
+                  <h3>{res.name}</h3>
                   <p>Duration: {res.duration}</p>
-                  <p>{res.description}</p>
+                  {Array.isArray(res.description) ? (
+                    <ul>
+                      {res.description.map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{res.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -118,10 +143,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <h2>Education</h2>
               {resumeData.educations.map((edu, idx) => (
                 <div key={idx} className="resume-section">
-                  <h3>{edu.school_name}</h3>
+                  <h3>{edu.name}</h3>
                   <p>{edu.degree} ({edu.duration})</p>
                   <p>Major: {edu.major}</p>
                   {edu.gpa && <p>GPA: {edu.gpa}</p>}
+                  {Array.isArray(edu.description) ? (
+                    <ul>
+                      {edu.description.map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{edu.description}</p>
+                  )}
                 </div>
               ))}
             </section>
