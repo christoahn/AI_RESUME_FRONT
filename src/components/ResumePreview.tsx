@@ -88,8 +88,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {
-                    console.log('JSON.parse 실패:', proj.description, e);
+                  } catch (e1) {
+                    try {
+                      if (typeof desc === 'string') {
+                        desc = JSON.parse(desc.replace(/'/g, '"'));
+                      }
+                    } catch (e2) {
+                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
+                    }
                   }
                 }
                 console.log('최종 desc(projects):', desc, Array.isArray(desc));
@@ -119,8 +125,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {
-                    console.log('JSON.parse 실패:', job.description, e);
+                  } catch (e1) {
+                    try {
+                      if (typeof desc === 'string') {
+                        desc = JSON.parse(desc.replace(/'/g, '"'));
+                      }
+                    } catch (e2) {
+                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
+                    }
                   }
                 }
                 console.log('최종 desc(jobs):', desc, Array.isArray(desc));
@@ -149,8 +161,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {
-                    console.log('JSON.parse 실패:', res.description, e);
+                  } catch (e1) {
+                    try {
+                      if (typeof desc === 'string') {
+                        desc = JSON.parse(desc.replace(/'/g, '"'));
+                      }
+                    } catch (e2) {
+                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
+                    }
                   }
                 }
                 console.log('최종 desc(researchs):', desc, Array.isArray(desc));
@@ -179,8 +197,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {
-                    console.log('JSON.parse 실패:', edu.description, e);
+                  } catch (e1) {
+                    try {
+                      if (typeof desc === 'string') {
+                        desc = JSON.parse(desc.replace(/'/g, '"'));
+                      }
+                    } catch (e2) {
+                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
+                    }
                   }
                 }
                 console.log('최종 desc(educations):', desc, Array.isArray(desc));
