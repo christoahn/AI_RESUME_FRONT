@@ -15,30 +15,26 @@ interface Education {
   major: string;
   duration: string;
   gpa?: string;
-  description?: string;
 }
 
 interface WorkExperience {
   name: string;
   position: string;
   duration: string;
-  description: string;
-  keywords?: string;
+  keywords: string;
 }
 
 interface Project {
   name: string;
   position: string;
   duration: string;
-  description: string;
-  keywords?: string;
+  keywords: string;
 }
 
 interface Research {
   name: string;
   duration: string;
-  description: string;
-  keywords?: string;
+  keywords: string;
 }
 
 interface ResumeData {
@@ -75,7 +71,7 @@ const resumeApi = {
             'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
-            'description': formatValue(job.description),
+            // 'description': formatValue(job.description),
             'keywords': formatValue(job.keywords)
           };
         });
@@ -85,7 +81,7 @@ const resumeApi = {
             'name': formatValue(job.name),
             'duration': formatValue(job.duration),
             'position': formatValue(job.position),
-            'description': formatValue(job.description),
+            // 'description': formatValue(job.description),
             'keywords': formatValue(job.keywords)
           };
         });
@@ -99,7 +95,7 @@ const resumeApi = {
             'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
-            'description': formatValue(project.description),
+            // 'description': formatValue(project.description),
             'keywords': formatValue(project.keywords)
           };
         });
@@ -109,7 +105,7 @@ const resumeApi = {
             'name': formatValue(project.name),
             'duration': formatValue(project.duration),
             'position': formatValue(project.position),
-            'description': formatValue(project.description),
+            // 'description': formatValue(project.description),
             'keywords': formatValue(project.keywords)
           };
         });
@@ -122,7 +118,7 @@ const resumeApi = {
           formattedResearches[`research${index + 1}`] = {
             'name': formatValue(research.name),
             'duration': formatValue(research.duration),
-            'description': formatValue(research.description),
+            // 'description': formatValue(research.description),
             'keywords': formatValue(research.keywords)
           };
         });
@@ -131,7 +127,7 @@ const resumeApi = {
           formattedResearches[`research${index + 1}`] = {
             'name': formatValue(research.name),
             'duration': formatValue(research.duration),
-            'description': formatValue(research.description),
+            // 'description': formatValue(research.description),
             'keywords': formatValue(research.keywords)
           };
         });
@@ -147,7 +143,7 @@ const resumeApi = {
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
             'gpa': formatValue(edu.gpa),
-            'description': formatValue(edu.description)
+            // 'description': formatValue(edu.description)
           };
         });
       } else if (Array.isArray(education)) {
@@ -158,7 +154,7 @@ const resumeApi = {
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
             'gpa': formatValue(edu.gpa),
-            'description': formatValue(edu.description)
+            // 'description': formatValue(edu.description)
           };
         });
       }
