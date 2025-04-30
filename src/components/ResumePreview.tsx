@@ -87,7 +87,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 let desc = proj.description;
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
-                    desc = JSON.parse(desc.replace(/'/g, '"'));
+                    desc = JSON.parse(desc);
                   } catch (e) {}
                 }
                 return (
@@ -111,65 +111,83 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
           {resumeData.jobs && resumeData.jobs.length > 0 && (
             <section>
               <h2>Work Experience</h2>
-              {resumeData.jobs.map((job, idx) => (
-                <div key={idx} className="resume-section">
-                  <h3>{job.name} - {job.position}</h3>
-                  <p>Duration: {job.duration}</p>
-                  {Array.isArray(job.description) ? (
-                    <ul>
-                      {job.description.map((desc, i) => (
-                        <li key={i}>{desc}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>{job.description}</p>
-                  )}
-                </div>
-              ))}
+              {resumeData.jobs.map((job, idx) => {
+                let desc = job.description;
+                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+                  try {
+                    desc = JSON.parse(desc);
+                  } catch (e) {}
+                }
+                return (
+                  <div key={idx} className="resume-section">
+                    <h3>{job.name} - {job.position}</h3>
+                    <p>Duration: {job.duration}</p>
+                    {Array.isArray(desc) ? (
+                      <ul>
+                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                      </ul>
+                    ) : (
+                      <p>{desc}</p>
+                    )}
+                  </div>
+                );
+              })}
             </section>
           )}
 
           {resumeData.researchs && resumeData.researchs.length > 0 && (
             <section>
               <h2>Research</h2>
-              {resumeData.researchs.map((res, idx) => (
-                <div key={idx} className="resume-section">
-                  <h3>{res.name}</h3>
-                  <p>Duration: {res.duration}</p>
-                  {Array.isArray(res.description) ? (
-                    <ul>
-                      {res.description.map((desc, i) => (
-                        <li key={i}>{desc}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>{res.description}</p>
-                  )}
-                </div>
-              ))}
+              {resumeData.researchs.map((res, idx) => {
+                let desc = res.description;
+                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+                  try {
+                    desc = JSON.parse(desc);
+                  } catch (e) {}
+                }
+                return (
+                  <div key={idx} className="resume-section">
+                    <h3>{res.name}</h3>
+                    <p>Duration: {res.duration}</p>
+                    {Array.isArray(desc) ? (
+                      <ul>
+                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                      </ul>
+                    ) : (
+                      <p>{desc}</p>
+                    )}
+                  </div>
+                );
+              })}
             </section>
           )}
 
           {resumeData.educations && resumeData.educations.length > 0 && (
             <section>
               <h2>Education</h2>
-              {resumeData.educations.map((edu, idx) => (
-                <div key={idx} className="resume-section">
-                  <h3>{edu.name}</h3>
-                  <p>{edu.degree} ({edu.duration})</p>
-                  <p>Major: {edu.major}</p>
-                  {edu.gpa && <p>GPA: {edu.gpa}</p>}
-                  {Array.isArray(edu.description) ? (
-                    <ul>
-                      {edu.description.map((desc, i) => (
-                        <li key={i}>{desc}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>{edu.description}</p>
-                  )}
-                </div>
-              ))}
+              {resumeData.educations.map((edu, idx) => {
+                let desc = edu.description;
+                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+                  try {
+                    desc = JSON.parse(desc);
+                  } catch (e) {}
+                }
+                return (
+                  <div key={idx} className="resume-section">
+                    <h3>{edu.name}</h3>
+                    <p>{edu.degree} ({edu.duration})</p>
+                    <p>Major: {edu.major}</p>
+                    {edu.gpa && <p>GPA: {edu.gpa}</p>}
+                    {Array.isArray(desc) ? (
+                      <ul>
+                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                      </ul>
+                    ) : (
+                      <p>{desc}</p>
+                    )}
+                  </div>
+                );
+              })}
             </section>
           )}
         </div>
