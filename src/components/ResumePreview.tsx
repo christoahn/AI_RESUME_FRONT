@@ -88,8 +88,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {}
+                  } catch (e) {
+                    console.log('JSON.parse 실패:', proj.description, e);
+                  }
                 }
+                console.log('최종 desc(projects):', desc, Array.isArray(desc));
                 return (
                   <div key={idx} className="resume-section">
                     <h3>{proj.name}</h3>
@@ -116,8 +119,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {}
+                  } catch (e) {
+                    console.log('JSON.parse 실패:', job.description, e);
+                  }
                 }
+                console.log('최종 desc(jobs):', desc, Array.isArray(desc));
                 return (
                   <div key={idx} className="resume-section">
                     <h3>{job.name} - {job.position}</h3>
@@ -143,8 +149,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {}
+                  } catch (e) {
+                    console.log('JSON.parse 실패:', res.description, e);
+                  }
                 }
+                console.log('최종 desc(researchs):', desc, Array.isArray(desc));
                 return (
                   <div key={idx} className="resume-section">
                     <h3>{res.name}</h3>
@@ -170,8 +179,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 if (typeof desc === 'string' && desc.trim().startsWith('[')) {
                   try {
                     desc = JSON.parse(desc);
-                  } catch (e) {}
+                  } catch (e) {
+                    console.log('JSON.parse 실패:', edu.description, e);
+                  }
                 }
+                console.log('최종 desc(educations):', desc, Array.isArray(desc));
                 return (
                   <div key={idx} className="resume-section">
                     <h3>{edu.name}</h3>
