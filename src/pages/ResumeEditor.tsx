@@ -67,28 +67,115 @@ const ResumeEditor: React.FC = () => {
     if (data.projects && data.projects.length > 0) {
       html += '<h2>Projects</h2>';
       data.projects.forEach((proj: any) => {
-        html += `<div><h3>${proj.name}</h3><p>Duration: ${proj.duration}</p><p>${proj.description}</p></div>`;
+        let desc = proj.description;
+        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+          try {
+            desc = JSON.parse(desc);
+          } catch (e1) {
+            try {
+              if (typeof desc === 'string') {
+                desc = JSON.parse(desc.replace(/'/g, '"'));
+              }
+            } catch (e2) {}
+          }
+        }
+        html += `<div><h3>${proj.name}</h3>`;
+        if (proj.position) html += `<p>Position: ${proj.position}</p>`;
+        html += `<p>Duration: ${proj.duration}</p>`;
+        if (Array.isArray(desc)) {
+          html += '<ul>';
+          desc.forEach(d => html += `<li>${d}</li>`);
+          html += '</ul>';
+        } else {
+          html += `<p>${desc}</p>`;
+        }
+        html += '</div>';
       });
     }
     
     if (data.jobs && data.jobs.length > 0) {
       html += '<h2>Work Experience</h2>';
       data.jobs.forEach((job: any) => {
-        html += `<div><h3>${job.name} - ${job.position}</h3><p>Duration: ${job.duration}</p><p>${job.description}</p></div>`;
+        let desc = job.description;
+        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+          try {
+            desc = JSON.parse(desc);
+          } catch (e1) {
+            try {
+              if (typeof desc === 'string') {
+                desc = JSON.parse(desc.replace(/'/g, '"'));
+              }
+            } catch (e2) {}
+          }
+        }
+        html += `<div><h3>${job.name} - ${job.position}</h3>`;
+        html += `<p>Duration: ${job.duration}</p>`;
+        if (Array.isArray(desc)) {
+          html += '<ul>';
+          desc.forEach(d => html += `<li>${d}</li>`);
+          html += '</ul>';
+        } else {
+          html += `<p>${desc}</p>`;
+        }
+        html += '</div>';
       });
     }
     
     if (data.researchs && data.researchs.length > 0) {
       html += '<h2>Research</h2>';
       data.researchs.forEach((res: any) => {
-        html += `<div><h3>${res.name}</h3><p>Duration: ${res.duration}</p><p>${res.description}</p></div>`;
+        let desc = res.description;
+        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+          try {
+            desc = JSON.parse(desc);
+          } catch (e1) {
+            try {
+              if (typeof desc === 'string') {
+                desc = JSON.parse(desc.replace(/'/g, '"'));
+              }
+            } catch (e2) {}
+          }
+        }
+        html += `<div><h3>${res.name}</h3>`;
+        html += `<p>Duration: ${res.duration}</p>`;
+        if (Array.isArray(desc)) {
+          html += '<ul>';
+          desc.forEach(d => html += `<li>${d}</li>`);
+          html += '</ul>';
+        } else {
+          html += `<p>${desc}</p>`;
+        }
+        html += '</div>';
       });
     }
     
     if (data.educations && data.educations.length > 0) {
       html += '<h2>Education</h2>';
       data.educations.forEach((edu: any) => {
-        html += `<div><h3>${edu.name}</h3><p>${edu.degree} (${edu.duration})</p><p>Major: ${edu.major}</p>${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}</div>`;
+        let desc = edu.description;
+        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
+          try {
+            desc = JSON.parse(desc);
+          } catch (e1) {
+            try {
+              if (typeof desc === 'string') {
+                desc = JSON.parse(desc.replace(/'/g, '"'));
+              }
+            } catch (e2) {}
+          }
+        }
+        html += `<div><h3>${edu.name}</h3>`;
+        html += `<p>${edu.degree} (${edu.duration})</p>`;
+        html += `<p>Major: ${edu.major}</p>`;
+        if (edu.gpa) html += `<p>GPA: ${edu.gpa}</p>`;
+        if (Array.isArray(desc)) {
+          html += '<ul>';
+          desc.forEach(d => html += `<li>${d}</li>`);
+          html += '</ul>';
+        } else if (desc) {
+          html += `<p>${desc}</p>`;
+        }
+        html += '</div>';
       });
     }
     
