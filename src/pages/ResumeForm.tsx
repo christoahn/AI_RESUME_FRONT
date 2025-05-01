@@ -237,9 +237,10 @@ const ResumeForm: React.FC = () => {
       projectList.forEach((proj, index) => {
         if (proj.name) {
           projectsObj[`project${index + 1}`] = {
-            title: proj.name,
+            name: proj.name,
+            position: proj.position || '',
             duration: proj.duration || '',
-            description: proj.keywords || proj.position || ''
+            description: proj.keywords || ''
           };
         }
       });
@@ -248,7 +249,7 @@ const ResumeForm: React.FC = () => {
       workExperienceList.forEach((job, index) => {
         if (job.name) {
           jobsObj[`job${index + 1}`] = {
-            company_name: job.name,
+            name: job.name,
             position: job.position || '',
             duration: job.duration || '',
             description: job.keywords || ''
@@ -260,7 +261,7 @@ const ResumeForm: React.FC = () => {
       researchesList.forEach((research, index) => {
         if (research.name) {
           researchesObj[`research${index + 1}`] = {
-            title: research.name,
+            name: research.name,
             duration: research.duration || '',
             description: research.keywords || ''
           };
