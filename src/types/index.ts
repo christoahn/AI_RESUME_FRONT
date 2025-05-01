@@ -21,8 +21,8 @@ export interface Research {
 export interface Education {
   name: string;
   degree: string;
-  duration: string;
   major: string;
+  duration: string;
   gpa?: string;
   description?: string | string[];
 }
@@ -34,22 +34,24 @@ export interface ResumeData {
   address: string;
   projects?: Project[];
   jobs?: Job[];
-  educations?: Education[];
   researchs?: Research[];
+  educations?: Education[];
 }
 
 export interface ChatMessage {
+  role: 'user' | 'assistant';
   content: string;
-  isUser: boolean;
+  timestamp: string;
 }
 
 export interface ApiResponse<T> {
   status: 'success' | 'error';
-  data?: T;
   message?: string;
+  data?: T;
 }
 
-export interface ChatResponse extends ApiResponse<{
-  response: string;
+export interface ChatResponse {
+  status: 'success' | 'error';
+  message: string;
   updated_json?: ResumeData;
-}> {} 
+} 
