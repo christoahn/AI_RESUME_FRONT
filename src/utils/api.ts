@@ -1,5 +1,5 @@
-const API_TIMEOUT = 30000; // 30초
-// 명시적으로 포트 지정 
+const API_TIMEOUT = 60000; // Increase timeout to 60 seconds
+// Explicitly set port
 const API_BASE_URL = 'http://localhost:8000';
 
 export const fetchWithTimeout = async (url: string, options: RequestInit) => {
@@ -35,7 +35,7 @@ export const fetchWithTimeout = async (url: string, options: RequestInit) => {
     
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        throw new Error('Request timeout. Please try again.');
+        throw new Error('Request timeout. Please try again. The server may be processing a large request.');
       }
       // Network errors like ECONNREFUSED
       if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {

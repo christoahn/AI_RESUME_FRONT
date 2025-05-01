@@ -17,14 +17,26 @@ const formatValue = (value: any): any => {
 const resumeApi = {
   generateResume: async (data: any): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
-      // 백엔드 API 요청 데이터 구성
+      // Validate and sanitize data before sending
       console.log("Original data:", data);
       
-      // 데이터는 이미 ResumeForm에서 올바른 형식으로 포맷팅되어 있음
+      // Make sure projects, jobs, researches, educations are proper objects, not arrays
+      const sanitizedData = {
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        projects: typeof data.projects === 'object' ? data.projects : {},
+        jobs: typeof data.jobs === 'object' ? data.jobs : {},
+        researches: typeof data.researches === 'object' ? data.researches : {},
+        educations: typeof data.educations === 'object' ? data.educations : {},
+        skills: data.skills || ''
+      };
+      
       try {
         const response = await fetchWithTimeout('resume', {
           method: 'POST',
-          body: JSON.stringify(data),
+          body: JSON.stringify(sanitizedData),
           headers: {
             'Content-Type': 'application/json'
           }

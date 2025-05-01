@@ -10,17 +10,17 @@ import ResumePreview from '../components/ResumePreview';
 const ResumeEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  // 이력서 데이터 상태
+  // Resume data state
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
-  // 로딩 상태
+  // Loading state
   const [loading, setLoading] = useState(true);
-  // 에러 상태
+  // Error state
   const [error, setError] = useState<string | null>(null);
-  // 채팅 메시지 목록
+  // Chat message list
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  // 현재 입력 중인 메시지
+  // Current input message
   const [currentMessage, setCurrentMessage] = useState('');
-  // 채팅 중인지 여부
+  // Chatting status
   const [isChatting, setIsChatting] = useState(false);
 
   const convertResponseToResumeData = (response: ResumeDataResponse): ResumeData => {
@@ -36,7 +36,7 @@ const ResumeEditor: React.FC = () => {
     };
   };
 
-  // 이력서 데이터 가져오기
+  // Fetch resume data
   const fetchResumeData = useCallback(async () => {
     if (!id) return;
     
@@ -61,7 +61,7 @@ const ResumeEditor: React.FC = () => {
     fetchResumeData();
   }, [fetchResumeData]);
 
-  // 이력서 업데이트 처리
+  // Handle resume update
   const handleUpdateResume = async (updatedData: ResumeData) => {
     if (!id) return;
     
@@ -79,7 +79,7 @@ const ResumeEditor: React.FC = () => {
     }
   };
 
-  // 채팅 처리 함수
+  // Handle chat
   const handleChat = async () => {
     if (!resumeData || !currentMessage.trim()) return;
     
@@ -87,7 +87,7 @@ const ResumeEditor: React.FC = () => {
       setIsChatting(true);
       setError(null);
       
-      // 사용자 메시지 추가
+      // Add user message
       const userMessage: ChatMessage = {
         role: 'user',
         content: currentMessage,
@@ -97,10 +97,10 @@ const ResumeEditor: React.FC = () => {
       setChatMessages(prev => [...prev, userMessage]);
       setCurrentMessage('');
       
-      // AI 응답 받기
+      // Get AI response
       const response = await resumeApi.chatWithAI(currentMessage, resumeData);
       
-      // AI 메시지 추가
+      // Add AI message
       const aiMessage: ChatMessage = {
         role: 'assistant',
         content: response.message,
@@ -115,7 +115,7 @@ const ResumeEditor: React.FC = () => {
     }
   };
 
-  // PDF 다운로드 처리
+  // Handle PDF download
   const handleDownloadPDF = async () => {
     if (!resumeData) return;
     
@@ -148,7 +148,7 @@ const ResumeEditor: React.FC = () => {
     }
   };
 
-  // DOCX 다운로드 처리
+  // Handle DOCX download
   const handleDownloadDOCX = async () => {
     if (!resumeData) return;
     
@@ -157,14 +157,14 @@ const ResumeEditor: React.FC = () => {
       const element = document.getElementById('resume-preview');
       if (!element) throw new Error('Resume preview element not found');
       
-      // 인라인 스타일만 포함
+      // Include only inline styles
       const html = `
         <!DOCTYPE html>
         <html>
           <head>
             <style>
               ${Array.from(document.styleSheets)
-                .filter(sheet => !sheet.href) // 외부 스타일시트 제외
+                .filter(sheet => !sheet.href) // Exclude external stylesheets
                 .map(sheet => {
                   try {
                     return Array.from(sheet.cssRules)
@@ -202,7 +202,7 @@ const ResumeEditor: React.FC = () => {
     try {
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
-        // 팝업이 차단된 경우 현재 창에서 프린트
+        // If popup is blocked, print in current window
         window.print();
         return;
       }
@@ -307,16 +307,16 @@ const ResumeEditor: React.FC = () => {
 
   return (
     <div className="resume-editor-container">
-      {/* 채팅 섹션 */}
+      {/* Chat section */}
       <div className="chat-section">
         <div className="chat-container">
-          {/* 채팅 헤더 */}
+          {/* Chat header */}
           <div className="chat-header">
             <h2>AI Resume Assistant</h2>
             <p>Chat with our AI to improve your resume</p>
           </div>
 
-          {/* 채팅 메시지 영역 */}
+          {/* Chat messages area */}
           <div className="chat-messages">
             {chatMessages.map((message, index) => (
               <div key={index} className={`message ${message.role}`}>
@@ -325,7 +325,7 @@ const ResumeEditor: React.FC = () => {
             ))}
           </div>
           
-          {/* 채팅 입력 영역 */}
+          {/* Chat input area */}
           <div className="chat-input">
             <input
               type="text"
@@ -341,7 +341,7 @@ const ResumeEditor: React.FC = () => {
         </div>
       </div>
       
-      {/* 이력서 미리보기 섹션 */}
+      {/* Resume preview section */}
       <div className="preview-section">
         {loading ? (
           <div className="loading">Loading...</div>

@@ -230,54 +230,62 @@ const ResumeForm: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log("폼 제출 시작");
+      console.log("Form submission started");
       
-      // Add description fields to the data and convert to dictionary format
+      // Create properly formatted data objects for backend
       const projectsObj: Record<string, any> = {};
       projectList.forEach((proj, index) => {
-        projectsObj[`project${index + 1}`] = {
-          title: proj.name,
-          duration: proj.duration,
-          description: proj.keywords || proj.position || ''
-        };
+        if (proj.name) {
+          projectsObj[`project${index + 1}`] = {
+            title: proj.name,
+            duration: proj.duration || '',
+            description: proj.keywords || proj.position || ''
+          };
+        }
       });
       
       const jobsObj: Record<string, any> = {};
       workExperienceList.forEach((job, index) => {
-        jobsObj[`job${index + 1}`] = {
-          company_name: job.name,
-          position: job.position,
-          duration: job.duration,
-          description: job.keywords || ''
-        };
+        if (job.name) {
+          jobsObj[`job${index + 1}`] = {
+            company_name: job.name,
+            position: job.position || '',
+            duration: job.duration || '',
+            description: job.keywords || ''
+          };
+        }
       });
       
       const researchesObj: Record<string, any> = {};
       researchesList.forEach((research, index) => {
-        researchesObj[`research${index + 1}`] = {
-          title: research.name,
-          duration: research.duration,
-          description: research.keywords || ''
-        };
+        if (research.name) {
+          researchesObj[`research${index + 1}`] = {
+            title: research.name,
+            duration: research.duration || '',
+            description: research.keywords || ''
+          };
+        }
       });
       
       const educationsObj: Record<string, any> = {};
       educationList.forEach((edu, index) => {
-        educationsObj[`education${index + 1}`] = {
-          school_name: edu.name,
-          degree: edu.degree,
-          major: edu.major,
-          duration: edu.duration,
-          gpa: edu.gpa || ''
-        };
+        if (edu.name) {
+          educationsObj[`education${index + 1}`] = {
+            school_name: edu.name,
+            degree: edu.degree || '',
+            major: edu.major || '',
+            duration: edu.duration || '',
+            gpa: edu.gpa || ''
+          };
+        }
       });
       
-      // Create data structure expected by the API with dictionary objects
+      // Create data structure expected by the API
       const formattedData = {
         name: basicInfo.name,
         email: basicInfo.email,
         phone: basicInfo.phone,
-        address: basicInfo.address || '', // Provide default empty string if undefined
+        address: basicInfo.address || '',
         projects: projectsObj,
         jobs: jobsObj,
         researches: researchesObj,
@@ -285,27 +293,27 @@ const ResumeForm: React.FC = () => {
         skills: skills
       };
       
-      console.log("API에 전송할 데이터:", formattedData);
+      console.log("Sending data to API:", formattedData);
       
       const data = await resumeApi.generateResume(formattedData);
-      console.log('이력서 생성 API 응답: ', data);
+      console.log('Resume generation API response:', data);
       
       if (data.status === 'success' && data.data) {
         // Get resume_id from the response data
         const resumeId = data.data.resume_id;
-        console.log("생성된 이력서 ID:", resumeId);
+        console.log("Generated resume ID:", resumeId);
         if (!resumeId) {
-          alert('이력서 ID가 없습니다!');
+          alert('No resume ID found!');
           return;
         }
         navigate(`/resume_preview?resume_id=${resumeId}`);
       } else {
-        console.error("API 응답 오류:", data);
-        throw new Error(data.message || '알 수 없는 오류');
+        console.error("API response error:", data);
+        throw new Error(data.message || 'Unknown error');
       }
     } catch (error) {
-      console.error('이력서 생성 오류:', error);
-      alert('이력서 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      console.error('Error generating resume:', error);
+      alert('An error occurred while generating your resume. Please try again.');
     } finally {
       setLoading(false);
     }
