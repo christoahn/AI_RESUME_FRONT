@@ -1,5 +1,6 @@
 const API_TIMEOUT = 30000; // 30초
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+// 명시적으로 포트 지정 
+const API_BASE_URL = 'http://localhost:8000';
 
 export const fetchWithTimeout = async (url: string, options: RequestInit) => {
   const controller = new AbortController();
@@ -8,7 +9,7 @@ export const fetchWithTimeout = async (url: string, options: RequestInit) => {
   try {
     // Strip any leading slash to avoid double slashes
     const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
-    // Always prepend 'api/' to the URL
+    // Always prepend 'api/' to the URL without trailing slash
     const fullUrl = `${API_BASE_URL}/api/${cleanUrl}`;
     console.log(`Fetching: ${fullUrl}`);
     
@@ -38,7 +39,7 @@ export const fetchWithTimeout = async (url: string, options: RequestInit) => {
       }
       // Network errors like ECONNREFUSED
       if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
-        throw new Error('Network error: Could not connect to the server. Please check if the backend server is running.');
+        throw new Error('Network error: Could not connect to the server. Please check if the backend server is running at ' + API_BASE_URL);
       }
       throw error;
     }

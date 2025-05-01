@@ -15,85 +15,16 @@ const formatValue = (value: any): any => {
 };
 
 const resumeApi = {
-  generateResume: async (data: ResumeData): Promise<ApiResponse<ResumeDataResponse>> => {
+  generateResume: async (data: any): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
       // 백엔드 API 요청 데이터 구성
       console.log("Original data:", data);
       
-      // Create a properly formatted request with the correct field names that match backend expectations
-      const requestData: {
-        name: string | null;
-        phone: string | null;
-        email: string | null;
-        address: string | null;
-        projects: Record<string, any>;
-        jobs: Record<string, any>;
-        researches: Record<string, any>;
-        educations: Record<string, any>;
-      } = {
-        name: formatValue(data.name),
-        phone: formatValue(data.phone),
-        email: formatValue(data.email),
-        address: formatValue(data.address),
-        projects: {},
-        jobs: {},
-        researches: {},
-        educations: {}
-      };
-      
-      // Format projects correctly
-      if (Array.isArray(data.projects)) {
-        data.projects.forEach((proj, index) => {
-          requestData.projects[`project${index + 1}`] = {
-            title: formatValue(proj.name),
-            duration: formatValue(proj.duration),
-            description: formatValue(proj.position || proj.description || "") // Use position or description
-          };
-        });
-      }
-      
-      // Format jobs correctly
-      if (Array.isArray(data.jobs)) {
-        data.jobs.forEach((job, index) => {
-          requestData.jobs[`job${index + 1}`] = {
-            company_name: formatValue(job.name),
-            position: formatValue(job.position),
-            duration: formatValue(job.duration),
-            description: formatValue(job.description || job.keywords || "")
-          };
-        });
-      }
-      
-      // Format researches correctly
-      if (Array.isArray(data.researchs)) {
-        data.researchs.forEach((research, index) => {
-          requestData.researches[`research${index + 1}`] = {
-            title: formatValue(research.name),
-            duration: formatValue(research.duration),
-            description: formatValue(research.description || research.keywords || "")
-          };
-        });
-      }
-      
-      // Format educations correctly
-      if (Array.isArray(data.educations)) {
-        data.educations.forEach((edu, index) => {
-          requestData.educations[`education${index + 1}`] = {
-            school_name: formatValue(edu.name),
-            degree: formatValue(edu.degree),
-            major: formatValue(edu.major),
-            duration: formatValue(edu.duration),
-            gpa: formatValue(edu.gpa)
-          };
-        });
-      }
-      
-      console.log("Formatted request data:", requestData);
-      
+      // 데이터는 이미 ResumeForm에서 올바른 형식으로 포맷팅되어 있음
       try {
         const response = await fetchWithTimeout('resume', {
           method: 'POST',
-          body: JSON.stringify(requestData),
+          body: JSON.stringify(data),
           headers: {
             'Content-Type': 'application/json'
           }
