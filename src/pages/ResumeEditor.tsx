@@ -44,13 +44,11 @@ const ResumeEditor: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await resumeApi.getResume(parseInt(id));
-      if (response && 'data' in response) {
-        const apiResponse = response as ApiResponse<ResumeDataResponse>;
-        if (apiResponse.data) {
-          setResumeData(convertResponseToResumeData(apiResponse.data));
-        }
+      if (response && 'data' in response && response.data) {
+        // Use convertResponseToResumeData function to properly convert the data
+        setResumeData(convertResponseToResumeData(response.data));
       } else {
-        setResumeData(response as ResumeData);
+        setError("Invalid response format from API");
       }
     } catch (error) {
       setError(handleApiError(error));
@@ -70,13 +68,11 @@ const ResumeEditor: React.FC = () => {
     try {
       setError(null);
       const response = await resumeApi.updateResume(parseInt(id), updatedData);
-      if (response && 'data' in response) {
-        const apiResponse = response as ApiResponse<ResumeDataResponse>;
-        if (apiResponse.data) {
-          setResumeData(convertResponseToResumeData(apiResponse.data));
-        }
+      if (response && 'data' in response && response.data) {
+        // Use convertResponseToResumeData function to properly convert the data
+        setResumeData(convertResponseToResumeData(response.data));
       } else {
-        setResumeData(response as ResumeData);
+        setError("Invalid response format from API");
       }
     } catch (error) {
       setError(handleApiError(error));

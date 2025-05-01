@@ -230,44 +230,51 @@ const ResumeForm: React.FC = () => {
     setLoading(true);
 
     try {
-      const educationObj: Record<string, Education> = {};
-      educationList.forEach((edu, index) => {
-        educationObj[`education${index + 1}`] = edu;
-      });
-
-      const workExperienceObj: Record<string, WorkExperience> = {};
-      workExperienceList.forEach((job, index) => {
-        workExperienceObj[`job${index + 1}`] = job;
-      });
-
-      const projectsObj: Record<string, Project> = {};
-      projectList.forEach((proj, index) => {
-        projectsObj[`project${index + 1}`] = proj;
-      });
-
-      const researchesObj: Record<string, Research> = {};
-      researchesList.forEach((res, index) => {
-        researchesObj[`research${index + 1}`] = res;
-      });
-
+      // Add description fields to the data to match API expectations
+      const projectsWithDesc = projectList.map(proj => ({
+        ...proj,
+        description: proj.keywords // Map keywords to description
+      }));
+      
+      const jobsWithDesc = workExperienceList.map(job => ({
+        ...job,
+        description: job.keywords // Map keywords to description
+      }));
+      
+      const researchesWithDesc = researchesList.map(research => ({
+        ...research,
+        description: research.keywords // Map keywords to description
+      }));
+      
+      // Create data structure expected by the API
       const formattedData = {
-        basic_info: basicInfo,
-        education: educationObj, 
-        work_experience: workExperienceObj, 
-        projects: projectsObj,
-        researches: researchesObj,
+        name: basicInfo.name,
+        email: basicInfo.email,
+        phone: basicInfo.phone,
+        address: basicInfo.address || '', // Provide default empty string if undefined
+        projects: projectsWithDesc,
+        jobs: jobsWithDesc,
+        researchs: researchesWithDesc,
+        educations: educationList,
         skills: skills
       };
       
+      console.log("Sending data to API:", formattedData);
+      
       const data = await resumeApi.generateResume(formattedData);
       console.log('generatRume 응답: ', data);
-      const resumeId = data.resume_id;
-      if (!resumeId) {
-        alert('No resume id!');
-        return;
+      
+      if (data.status === 'success' && data.data) {
+        // Get resume_id from the response data
+        const resumeId = data.data.resume_id;
+        if (!resumeId) {
+          alert('No resume id!');
+          return;
+        }
+        navigate(`/resume_preview?resume_id=${resumeId}`);
+      } else {
+        throw new Error(data.message || 'Unknown error');
       }
-      navigate(`/resume_preview?resume_id=${resumeId}`);
-
     } catch (error) {
       console.error('Error generating resume:', error);
       alert('Error generating resume. Please try again.');

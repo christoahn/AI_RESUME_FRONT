@@ -3,6 +3,7 @@ export interface Project {
   position?: string;
   duration: string;
   description?: string | string[];
+  keywords?: string;
 }
 
 export interface Job {
@@ -10,12 +11,14 @@ export interface Job {
   position: string;
   duration: string;
   description?: string | string[];
+  keywords?: string;
 }
 
 export interface Research {
   name: string;
   duration: string;
   description?: string | string[];
+  keywords?: string;
 }
 
 export interface Education {
@@ -35,6 +38,7 @@ export interface BasicInfo {
 }
 
 export interface ResumeDataResponse {
+  resume_id?: number;
   name: string;
   email: string;
   phone: string;

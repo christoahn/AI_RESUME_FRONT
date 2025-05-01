@@ -6,7 +6,13 @@ export const fetchWithTimeout = async (url: string, options: RequestInit) => {
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
   
   try {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
+    // Strip any leading slash to avoid double slashes
+    const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
+    // Always prepend 'api/' to the URL
+    const fullUrl = `${API_BASE_URL}/api/${cleanUrl}`;
+    console.log(`Fetching: ${fullUrl}`);
+    
+    const response = await fetch(fullUrl, {
       ...options,
       signal: controller.signal,
       headers: {
@@ -17,15 +23,22 @@ export const fetchWithTimeout = async (url: string, options: RequestInit) => {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
+      console.error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
+    console.error('Fetch error:', error);
+    
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw new Error('Request timeout. Please try again.');
+      }
+      // Network errors like ECONNREFUSED
+      if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+        throw new Error('Network error: Could not connect to the server. Please check if the backend server is running.');
       }
       throw error;
     }
