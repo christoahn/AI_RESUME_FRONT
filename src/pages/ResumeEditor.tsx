@@ -102,11 +102,19 @@ const ResumeEditor: React.FC = () => {
       if (!element) throw new Error('Resume preview element not found');
       
       const opt = {
-        margin: 1,
+        margin: [10, 10, 10, 10],
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          logging: true
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait'
+        }
       };
       
       await html2pdf().set(opt).from(element).save();
@@ -124,7 +132,34 @@ const ResumeEditor: React.FC = () => {
       const element = document.getElementById('resume-preview');
       if (!element) throw new Error('Resume preview element not found');
       
-      const html = element.innerHTML;
+      // Get all styles from the document
+      const styles = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules)
+              .map(rule => rule.cssText)
+              .join('\n');
+          } catch (e) {
+            return '';
+          }
+        })
+        .join('\n');
+
+      // Create a complete HTML document with styles
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              ${styles}
+            </style>
+          </head>
+          <body>
+            ${element.innerHTML}
+          </body>
+        </html>
+      `;
+
       const blob = await resumeApi.generateDocx(html);
       
       const url = window.URL.createObjectURL(blob);

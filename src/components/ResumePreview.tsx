@@ -50,7 +50,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+      alert('Popup blocked. Please allow popups for this site.');
       return;
     }
 
@@ -205,11 +205,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
     printWindow.document.write(printContent);
     printWindow.document.close();
     
-    // 이미지와 폰트가 로드될 때까지 기다린 후 프린트
     printWindow.onload = () => {
       setTimeout(() => {
         printWindow.print();
-        // 프린트 후 창 닫기
         printWindow.onafterprint = () => {
           printWindow.close();
         };
@@ -250,16 +248,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
 
   return (
     <div className="resume-preview-container">
-      <div className="preview-header">
-        <h2>Resume Preview</h2>
-        <div className="preview-actions">
-          <button className="action-btn pdf" onClick={handleDownloadPDF}>📄 PDF</button>
-          <button className="action-btn docx" onClick={handleDownloadDOCX}>📝 DOCX</button>
-          <button className="action-btn print" onClick={handlePrint}>🖨️ Print</button>
-          <button className="action-btn share" onClick={handleCopyLink}>🔗 Share</button>
-        </div>
-      </div>
-      <div className="preview-content">
+      <div className="resume-preview" id="resume-preview">
         <div className="resume-document">
           <h1>{resumeData.name}</h1>
           <p>
@@ -276,7 +265,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                   <h3>{proj.name}</h3>
                   {proj.position && <p>Position: {proj.position}</p>}
                   <p>Duration: {proj.duration}</p>
-                  {renderDescription(proj.description)}
+                  {proj.description && (
+                    Array.isArray(proj.description) ? (
+                      <ul>
+                        {proj.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                      </ul>
+                    ) : <p>{proj.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -289,7 +284,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 <div key={idx} className="resume-section">
                   <h3>{job.name} - {job.position}</h3>
                   <p>Duration: {job.duration}</p>
-                  {renderDescription(job.description)}
+                  {job.description && (
+                    Array.isArray(job.description) ? (
+                      <ul>
+                        {job.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                      </ul>
+                    ) : <p>{job.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -302,7 +303,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 <div key={idx} className="resume-section">
                   <h3>{res.name}</h3>
                   <p>Duration: {res.duration}</p>
-                  {renderDescription(res.description)}
+                  {res.description && (
+                    Array.isArray(res.description) ? (
+                      <ul>
+                        {res.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                      </ul>
+                    ) : <p>{res.description}</p>
+                  )}
                 </div>
               ))}
             </section>
@@ -317,12 +324,33 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                   <p>{edu.degree} ({edu.duration})</p>
                   <p>Major: {edu.major}</p>
                   {edu.gpa && <p>GPA: {edu.gpa}</p>}
-                  {renderDescription(edu.description)}
+                  {edu.description && (
+                    Array.isArray(edu.description) ? (
+                      <ul>
+                        {edu.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                      </ul>
+                    ) : <p>{edu.description}</p>
+                  )}
                 </div>
               ))}
             </section>
           )}
         </div>
+      </div>
+
+      <div className="resume-actions">
+        <button onClick={handlePrint} className="action-button">
+          <i className="fas fa-print"></i> Print
+        </button>
+        <button onClick={handleDownloadPDF} className="action-button">
+          <i className="fas fa-file-pdf"></i> Download PDF
+        </button>
+        <button onClick={handleDownloadDOCX} className="action-button">
+          <i className="fas fa-file-word"></i> Download DOCX
+        </button>
+        <button onClick={handleCopyLink} className="action-button">
+          <i className="fas fa-link"></i> Copy Link
+        </button>
       </div>
     </div>
   );
