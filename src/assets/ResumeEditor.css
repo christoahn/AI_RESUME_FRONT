@@ -2,14 +2,17 @@
 .resume-editor-container {
   display: flex;
   flex: 1;
-  padding: 1rem 2rem;
-  gap: 2rem;
+  padding: 1rem 2.5rem 1.5rem;
+  gap: 3rem;
+  height: calc(100vh - 80px);
+  background-color: #221212;
 }
 
 /* 채팅 섹션 스타일 */
 .chat-section {
   flex: 1;
-  max-width: 400px;
+  max-width: 380px;
+  height: calc(100vh - 100px);
 }
 
 /* 채팅 컨테이너 스타일 */
@@ -17,7 +20,7 @@
   background-color: #252529;
   border-radius: 10px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
-  height: calc(100vh - 150px);
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -64,10 +67,11 @@
 }
 
 /* 봇 메시지 스타일 */
-.message.bot {
+.message.assistant {
   align-self: flex-start;
   background-color: #3b3b3f;
   border-bottom-left-radius: 4px;
+  color: #fff;
 }
 
 /* 사용자 메시지 스타일 */
@@ -156,12 +160,21 @@
   justify-content: center;
   align-items: center;
   transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
 /* 전송 버튼 호버 효과 */
 .chat-input button:hover {
   background-color: #d45040;
   transform: translateY(-2px);
+}
+
+/* 전송 버튼 비활성화 효과 */
+.chat-input button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* 프롬프트 제안 영역 스타일 */
@@ -205,19 +218,51 @@
 /* 미리보기 섹션 스타일 */
 .preview-section {
   flex: 2;
+  height: calc(100vh - 100px);
+  overflow: hidden;
+  position: relative;
 }
 
-/* 빈 이력서 상태 스타일 */
-.empty-resume {
-  padding: 2rem;
-  text-align: center;
+/* 로딩 표시기 스타일 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.2rem;
   color: #666;
 }
 
+/* 에러 메시지 스타일 */
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.2rem;
+  color: #e74c3c;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+/* 데이터 없음 메시지 스타일 */
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+}
+
 /* 모바일 반응형 스타일 */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .resume-editor-container {
     flex-direction: column;
+    height: auto;
+    padding: 1rem;
+    gap: 2rem;
   }
   
   .chat-section, .preview-section {
@@ -227,6 +272,25 @@
   
   .chat-container {
     height: 500px;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .preview-section {
+    height: 800px;
+  }
+}
+
+@media (max-width: 576px) {
+  .resume-editor-container {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .chat-container {
+    height: 400px;
+  }
+  
+  .preview-section {
+    height: 600px;
   }
 } 
