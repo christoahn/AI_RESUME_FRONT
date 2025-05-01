@@ -27,11 +27,25 @@ export interface Education {
   description?: string | string[];
 }
 
-export interface ResumeData {
+export interface BasicInfo {
   name: string;
   email: string;
   phone: string;
   address: string;
+}
+
+export interface ResumeDataResponse {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  projects?: { [key: string]: Project };
+  jobs?: { [key: string]: Job };
+  researchs?: { [key: string]: Research };
+  educations?: { [key: string]: Education };
+}
+
+export interface ResumeData extends BasicInfo {
   projects?: Project[];
   jobs?: Job[];
   researchs?: Research[];
@@ -53,5 +67,5 @@ export interface ApiResponse<T> {
 export interface ChatResponse {
   status: 'success' | 'error';
   message: string;
-  updated_json?: ResumeData;
+  updated_json?: ResumeDataResponse;
 } 

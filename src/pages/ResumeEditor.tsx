@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ResumeData, ChatMessage } from '../types';
+import { ResumeData, ResumeDataResponse, ApiResponse, ChatMessage } from '../types';
 import resumeApi from '../api/resumeApi';
 import { handleApiError } from '../utils/api';
 import html2pdf from 'html2pdf.js';
@@ -23,6 +23,19 @@ const ResumeEditor: React.FC = () => {
   // 채팅 중인지 여부
   const [isChatting, setIsChatting] = useState(false);
 
+  const convertResponseToResumeData = (response: ResumeDataResponse): ResumeData => {
+    return {
+      name: response.name,
+      email: response.email,
+      phone: response.phone,
+      address: response.address,
+      projects: Object.values(response.projects || {}),
+      jobs: Object.values(response.jobs || {}),
+      educations: Object.values(response.educations || {}),
+      researchs: Object.values(response.researchs || {})
+    };
+  };
+
   // 이력서 데이터 가져오기
   const fetchResumeData = useCallback(async () => {
     if (!id) return;
@@ -30,8 +43,15 @@ const ResumeEditor: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await resumeApi.getResume(parseInt(id));
-      setResumeData(data);
+      const response = await resumeApi.getResume(parseInt(id));
+      if (response && 'data' in response) {
+        const apiResponse = response as ApiResponse<ResumeDataResponse>;
+        if (apiResponse.data) {
+          setResumeData(convertResponseToResumeData(apiResponse.data));
+        }
+      } else {
+        setResumeData(response as ResumeData);
+      }
     } catch (error) {
       setError(handleApiError(error));
     } finally {
@@ -49,8 +69,15 @@ const ResumeEditor: React.FC = () => {
     
     try {
       setError(null);
-      const data = await resumeApi.updateResume(parseInt(id), updatedData);
-      setResumeData(data);
+      const response = await resumeApi.updateResume(parseInt(id), updatedData);
+      if (response && 'data' in response) {
+        const apiResponse = response as ApiResponse<ResumeDataResponse>;
+        if (apiResponse.data) {
+          setResumeData(convertResponseToResumeData(apiResponse.data));
+        }
+      } else {
+        setResumeData(response as ResumeData);
+      }
     } catch (error) {
       setError(handleApiError(error));
     }
@@ -102,13 +129,15 @@ const ResumeEditor: React.FC = () => {
       if (!element) throw new Error('Resume preview element not found');
       
       const opt = {
-        margin: [10, 10, 10, 10],
+        margin: 10,
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
           scale: 2,
           useCORS: true,
-          logging: true
+          logging: true,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight
         },
         jsPDF: { 
           unit: 'mm', 
@@ -132,26 +161,24 @@ const ResumeEditor: React.FC = () => {
       const element = document.getElementById('resume-preview');
       if (!element) throw new Error('Resume preview element not found');
       
-      // Get all styles from the document
-      const styles = Array.from(document.styleSheets)
-        .map(sheet => {
-          try {
-            return Array.from(sheet.cssRules)
-              .map(rule => rule.cssText)
-              .join('\n');
-          } catch (e) {
-            return '';
-          }
-        })
-        .join('\n');
-
-      // Create a complete HTML document with styles
+      // 인라인 스타일만 포함
       const html = `
         <!DOCTYPE html>
         <html>
           <head>
             <style>
-              ${styles}
+              ${Array.from(document.styleSheets)
+                .filter(sheet => !sheet.href) // 외부 스타일시트 제외
+                .map(sheet => {
+                  try {
+                    return Array.from(sheet.cssRules)
+                      .map(rule => rule.cssText)
+                      .join('\n');
+                  } catch (e) {
+                    return '';
+                  }
+                })
+                .join('\n')}
             </style>
           </head>
           <body>
@@ -170,6 +197,101 @@ const ResumeEditor: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setError(handleApiError(error));
+    }
+  };
+
+  const handlePrint = () => {
+    try {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        // 팝업이 차단된 경우 현재 창에서 프린트
+        window.print();
+        return;
+      }
+
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Resume Print</title>
+            <style>
+              @media print {
+                body {
+                  font-family: Arial, sans-serif;
+                  line-height: 1.6;
+                  margin: 0;
+                  padding: 20mm;
+                  color: #000;
+                }
+                h1 {
+                  font-size: 24pt;
+                  margin-bottom: 10pt;
+                  color: #000;
+                }
+                h2 {
+                  font-size: 18pt;
+                  margin-top: 20pt;
+                  margin-bottom: 10pt;
+                  color: #000;
+                  border-bottom: 1px solid #000;
+                }
+                h3 {
+                  font-size: 14pt;
+                  margin-top: 15pt;
+                  margin-bottom: 5pt;
+                  color: #000;
+                }
+                p {
+                  font-size: 11pt;
+                  margin: 5pt 0;
+                }
+                ul {
+                  margin: 5pt 0;
+                  padding-left: 20pt;
+                }
+                li {
+                  font-size: 11pt;
+                  margin: 3pt 0;
+                }
+                .resume-section {
+                  margin-bottom: 15pt;
+                }
+                .basic-info {
+                  margin-bottom: 20pt;
+                }
+                .basic-info p {
+                  font-size: 11pt;
+                  margin: 3pt 0;
+                }
+                .basic-info span {
+                  margin-right: 15pt;
+                }
+                @page {
+                  size: A4;
+                  margin: 20mm;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            ${document.getElementById('resume-preview')?.innerHTML || ''}
+          </body>
+        </html>
+      `;
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.onafterprint = () => {
+            printWindow.close();
+          };
+        }, 500);
+      };
     } catch (error) {
       setError(handleApiError(error));
     }
@@ -225,18 +347,19 @@ const ResumeEditor: React.FC = () => {
       
       {/* 이력서 미리보기 섹션 */}
       <div className="preview-section">
-        {resumeData && resumeData.data && (
+        {loading ? (
+          <div className="loading">Loading...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : resumeData ? (
           <ResumePreview 
-            resumeData={{
-              ...resumeData.data,
-              projects: Object.values(resumeData.data.projects || {}),
-              jobs: Object.values(resumeData.data.jobs || {}),
-              educations: Object.values(resumeData.data.educations || {}),
-              researchs: Object.values(resumeData.data.researches || {}),
-            }}
+            resumeData={resumeData}
             handleDownloadPDF={handleDownloadPDF}
             handleDownloadDOCX={handleDownloadDOCX}
+            handlePrint={handlePrint}
           />
+        ) : (
+          <div className="no-data">No resume data found</div>
         )}
       </div>
     </div>

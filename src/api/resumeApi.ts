@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ResumeData, ChatResponse, ApiResponse } from '../types';
+import { ResumeData, ResumeDataResponse, ApiResponse, ChatResponse } from '../types';
 import { fetchWithTimeout, handleApiError } from '../utils/api';
 
 interface BasicInfo {
@@ -48,7 +48,7 @@ interface ResumeData {
   skills: string;
 }
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 // 값이 비어있는지 확인하는 함수
 const isEmpty = (value: any): boolean => {
@@ -186,18 +186,12 @@ const resumeApi = {
     }
   },
 
-  getResume: async (id: number): Promise<ResumeData> => {
+  getResume: async (id: number): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
         method: 'GET',
       });
-      const data: ApiResponse<ResumeData> = await response.json();
-      
-      if (data.status === 'error' || !data.data) {
-        throw new Error(data.message || 'Failed to fetch resume');
-      }
-      
-      return data.data;
+      return await response.json();
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -221,11 +215,6 @@ const resumeApi = {
         method: 'POST',
         body: JSON.stringify({ html }),
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to generate DOCX');
-      }
-      
       return await response.blob();
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -238,13 +227,7 @@ const resumeApi = {
         method: 'POST',
         body: JSON.stringify({ message, resumeData }),
       });
-      const data: ChatResponse = await response.json();
-      
-      if (data.status === 'error') {
-        throw new Error(data.message || 'Failed to get AI response');
-      }
-      
-      return data;
+      return await response.json();
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -260,19 +243,13 @@ const resumeApi = {
     }
   },
 
-  updateResume: async (id: number, resumeData: ResumeData): Promise<ResumeData> => {
+  updateResume: async (id: number, resumeData: ResumeData): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
         method: 'PUT',
         body: JSON.stringify(resumeData),
       });
-      const data: ApiResponse<ResumeData> = await response.json();
-      
-      if (data.status === 'error' || !data.data) {
-        throw new Error(data.message || 'Failed to update resume');
-      }
-      
-      return data.data;
+      return await response.json();
     } catch (error) {
       throw new Error(handleApiError(error));
     }
