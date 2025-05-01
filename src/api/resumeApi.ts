@@ -61,128 +61,60 @@ const formatValue = (value: any): any => {
 };
 
 const resumeApi = {
-  generateResume: async (data: ResumeData) => {
+  generateResume: async (data: ResumeData): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
-      const { basic_info, education, work_experience, projects, researches } = data;
-      
-      // 작업 경험 데이터 변환
-      const jobs: Record<string, any> = {};
-      if (typeof work_experience === 'object' && !Array.isArray(work_experience)) {
-        Object.entries(work_experience).forEach(([key, job], index) => {
-          jobs[`job${index + 1}`] = {
-            'name': formatValue(job.name),
-            'duration': formatValue(job.duration),
-            'position': formatValue(job.position),
-            // 'description': formatValue(job.description),
-            'keywords': formatValue(job.keywords)
-          };
-        });
-      } else if (Array.isArray(work_experience)) {
-        work_experience.forEach((job, index) => {
-          jobs[`job${index + 1}`] = {
-            'name': formatValue(job.name),
-            'duration': formatValue(job.duration),
-            'position': formatValue(job.position),
-            // 'description': formatValue(job.description),
-            'keywords': formatValue(job.keywords)
-          };
-        });
-      }
-      
-      // 프로젝트 데이터 변환
-      const formattedProjects: Record<string, any> = {};
-      if (typeof projects === 'object' && !Array.isArray(projects)) {
-        Object.entries(projects).forEach(([key, project], index) => {
-          formattedProjects[`project${index + 1}`] = {
-            'name': formatValue(project.name),
-            'duration': formatValue(project.duration),
-            'position': formatValue(project.position),
-            // 'description': formatValue(project.description),
-            'keywords': formatValue(project.keywords)
-          };
-        });
-      } else if (Array.isArray(projects)) {
-        projects.forEach((project, index) => {
-          formattedProjects[`project${index + 1}`] = {
-            'name': formatValue(project.name),
-            'duration': formatValue(project.duration),
-            'position': formatValue(project.position),
-            // 'description': formatValue(project.description),
-            'keywords': formatValue(project.keywords)
-          };
-        });
-      }
-      
-      // 연구 경력 데이터 변환
-      const formattedResearches: Record<string, any> = {};
-      if (typeof researches === 'object' && !Array.isArray(researches)) {
-        Object.entries(researches).forEach(([key, research], index) => {
-          formattedResearches[`research${index + 1}`] = {
-            'name': formatValue(research.name),
-            'duration': formatValue(research.duration),
-            // 'description': formatValue(research.description),
-            'keywords': formatValue(research.keywords)
-          };
-        });
-      } else if (Array.isArray(researches)) {
-        researches.forEach((research, index) => {
-          formattedResearches[`research${index + 1}`] = {
-            'name': formatValue(research.name),
-            'duration': formatValue(research.duration),
-            // 'description': formatValue(research.description),
-            'keywords': formatValue(research.keywords)
-          };
-        });
-      }
-      
-      // 교육 데이터 변환
-      const formattedEducation: Record<string, any> = {};
-      if (typeof education === 'object' && !Array.isArray(education)) {
-        Object.entries(education).forEach(([key, edu], index) => {
-          formattedEducation[`education${index + 1}`] = {
-            'name': formatValue(edu.name),
-            'degree': formatValue(edu.degree),
-            'major': formatValue(edu.major),
-            'duration': formatValue(edu.duration),
-            'gpa': formatValue(edu.gpa),
-            // 'description': formatValue(edu.description)
-          };
-        });
-      } else if (Array.isArray(education)) {
-        education.forEach((edu, index) => {
-          formattedEducation[`education${index + 1}`] = {
-            'name': formatValue(edu.name),
-            'degree': formatValue(edu.degree),
-            'major': formatValue(edu.major),
-            'duration': formatValue(edu.duration),
-            'gpa': formatValue(edu.gpa),
-            // 'description': formatValue(edu.description)
-          };
-        });
-      }
-      
-      // 백엔드 API 요청 데이터 구성 (모든 키는 복수형, 소문자)
+      // 백엔드 API 요청 데이터 구성
       const requestData = {
-        'name': formatValue(basic_info.name),
-        'phone': formatValue(basic_info.phone),
-        'email': formatValue(basic_info.email),
-        'linkedin': formatValue(basic_info.linkedin),
-        'portfolio': formatValue(basic_info.portfolio),
-        'address': formatValue(basic_info.address),
-        'jobs': jobs,
-        'projects': formattedProjects,
-        'researches': formattedResearches,
-        'educations': formattedEducation,
-        'skills': formatValue(data.skills),
-        'action': 'generate_resume'
+        name: formatValue(data.name),
+        phone: formatValue(data.phone),
+        email: formatValue(data.email),
+        address: formatValue(data.address),
+        projects: data.projects?.reduce((acc, proj, index) => ({
+          ...acc,
+          [`project${index + 1}`]: {
+            name: formatValue(proj.name),
+            duration: formatValue(proj.duration),
+            position: formatValue(proj.position),
+            description: formatValue(proj.description)
+          }
+        }), {}),
+        jobs: data.jobs?.reduce((acc, job, index) => ({
+          ...acc,
+          [`job${index + 1}`]: {
+            name: formatValue(job.name),
+            duration: formatValue(job.duration),
+            position: formatValue(job.position),
+            description: formatValue(job.description)
+          }
+        }), {}),
+        researchs: data.researchs?.reduce((acc, research, index) => ({
+          ...acc,
+          [`research${index + 1}`]: {
+            name: formatValue(research.name),
+            duration: formatValue(research.duration),
+            description: formatValue(research.description)
+          }
+        }), {}),
+        educations: data.educations?.reduce((acc, edu, index) => ({
+          ...acc,
+          [`education${index + 1}`]: {
+            name: formatValue(edu.name),
+            degree: formatValue(edu.degree),
+            major: formatValue(edu.major),
+            duration: formatValue(edu.duration),
+            gpa: formatValue(edu.gpa),
+            description: formatValue(edu.description)
+          }
+        }), {})
       };
       
-      const response = await axios.post(`${API_BASE_URL}/resume/basicinfos/`, requestData);
-      console.log("Response.data 값: ", response.data)
-      return response.data;
+      const response = await fetchWithTimeout(`${API_BASE_URL}/resume`, {
+        method: 'POST',
+        body: JSON.stringify(requestData)
+      });
+      return await response.json();
     } catch (error) {
-      console.error('Error generating resume:', error);
-      throw error;
+      throw new Error(handleApiError(error));
     }
   },
 
@@ -197,21 +129,21 @@ const resumeApi = {
     }
   },
 
-  generatePdf: async (html: string) => {
+  updateResume: async (id: number, resumeData: ResumeData): Promise<ApiResponse<ResumeDataResponse>> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
-        responseType: 'blob'
+      const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(resumeData),
       });
-      return response.data;
+      return await response.json();
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      throw error;
+      throw new Error(handleApiError(error));
     }
   },
 
   generateDocx: async (html: string): Promise<Blob> => {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/generate-docx`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/resume/docx`, {
         method: 'POST',
         body: JSON.stringify({ html }),
       });
@@ -233,21 +165,10 @@ const resumeApi = {
     }
   },
 
-  healthCheck: async () => {
+  healthCheck: async (): Promise<{ status: string }> => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/health/`);
-      return response.data;
-    } catch (error) {
-      console.error('Health check failed:', error);
-      throw error;
-    }
-  },
-
-  updateResume: async (id: number, resumeData: ResumeData): Promise<ApiResponse<ResumeDataResponse>> => {
-    try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(resumeData),
+      const response = await fetchWithTimeout(`${API_BASE_URL}/health`, {
+        method: 'GET',
       });
       return await response.json();
     } catch (error) {
