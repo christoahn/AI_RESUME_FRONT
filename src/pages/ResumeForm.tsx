@@ -302,11 +302,23 @@ const ResumeForm: React.FC = () => {
         // Get resume_id from the response data
         const resumeId = data.data.resume_id;
         console.log("Generated resume ID:", resumeId);
+        
         if (!resumeId) {
           alert('No resume ID found!');
           return;
         }
-        navigate(`/resume_preview?resume_id=${resumeId}`);
+        
+        try {
+          // Try navigating to the resume editor route with ID parameter
+          console.log(`Trying to navigate to resume_editor/${resumeId}`);
+          navigate(`/resume_editor/${resumeId}`);
+        } catch (navError) {
+          console.error("Navigation error:", navError);
+          
+          // Fallback to the query parameter version if the URL parameter version fails
+          console.log(`Fallback: navigating to resume_preview?resume_id=${resumeId}`);
+          navigate(`/resume_preview?resume_id=${resumeId}`);
+        }
       } else {
         console.error("API response error:", data);
         throw new Error(data.message || 'Unknown error');

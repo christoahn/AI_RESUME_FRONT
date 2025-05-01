@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ResumeData, ResumeDataResponse, ApiResponse, ChatMessage } from '../types';
 import resumeApi from '../api/resumeApi';
 import { handleApiError } from '../utils/api';
@@ -9,7 +9,29 @@ import ResumePreview from '../components/ResumePreview';
 
 const ResumeEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
+  
+  // Get resume_id from either URL parameter or query parameter
+  const getResumeId = useCallback(() => {
+    // First try URL parameter
+    if (id) {
+      console.log("Using URL parameter id:", id);
+      return id;
+    }
+    
+    // Then try query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const queryId = queryParams.get('resume_id');
+    if (queryId) {
+      console.log("Using query parameter resume_id:", queryId);
+      return queryId;
+    }
+    
+    console.warn("No resume ID found in URL or query parameters");
+    return null;
+  }, [id, location.search]);
+  
   // Resume data state
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   // Loading state
@@ -38,12 +60,20 @@ const ResumeEditor: React.FC = () => {
 
   // Fetch resume data
   const fetchResumeData = useCallback(async () => {
-    if (!id) return;
+    const resumeId = getResumeId();
+    if (!resumeId) {
+      setError("Resume ID not found in URL");
+      setLoading(false);
+      return;
+    }
     
     try {
+      console.log(`Fetching resume data for ID: ${resumeId}`);
       setLoading(true);
       setError(null);
-      const response = await resumeApi.getResume(parseInt(id));
+      const response = await resumeApi.getResume(parseInt(resumeId));
+      console.log("Resume data response:", response);
+      
       if (response && 'data' in response && response.data) {
         // Use convertResponseToResumeData function to properly convert the data
         setResumeData(convertResponseToResumeData(response.data));
@@ -51,11 +81,12 @@ const ResumeEditor: React.FC = () => {
         setError("Invalid response format from API");
       }
     } catch (error) {
+      console.error("Error fetching resume:", error);
       setError(handleApiError(error));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [getResumeId]);
 
   useEffect(() => {
     fetchResumeData();
@@ -63,11 +94,18 @@ const ResumeEditor: React.FC = () => {
 
   // Handle resume update
   const handleUpdateResume = async (updatedData: ResumeData) => {
-    if (!id) return;
+    const resumeId = getResumeId();
+    if (!resumeId) {
+      setError("Resume ID not found in URL");
+      return;
+    }
     
     try {
+      console.log(`Updating resume data for ID: ${resumeId}`);
       setError(null);
-      const response = await resumeApi.updateResume(parseInt(id), updatedData);
+      const response = await resumeApi.updateResume(parseInt(resumeId), updatedData);
+      console.log("Resume update response:", response);
+      
       if (response && 'data' in response && response.data) {
         // Use convertResponseToResumeData function to properly convert the data
         setResumeData(convertResponseToResumeData(response.data));
@@ -75,6 +113,7 @@ const ResumeEditor: React.FC = () => {
         setError("Invalid response format from API");
       }
     } catch (error) {
+      console.error("Error updating resume:", error);
       setError(handleApiError(error));
     }
   };
