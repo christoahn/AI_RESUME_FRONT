@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { ResumeData, ChatResponse, ApiResponse } from '../types';
+import { fetchWithTimeout, handleApiError } from '../utils/api';
 
 interface BasicInfo {
   name: string;
@@ -184,13 +186,21 @@ const resumeApi = {
     }
   },
 
-  // Get Stored resume from database at third page
-  getResume: async (resumeId: number) => {
-    const response = await fetch(`${API_BASE_URL}/resume/resume_preview?resume_id=${resumeId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch resume');
+  getResume: async (id: number): Promise<ResumeData> => {
+    try {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
+        method: 'GET',
+      });
+      const data: ApiResponse<ResumeData> = await response.json();
+      
+      if (data.status === 'error' || !data.data) {
+        throw new Error(data.message || 'Failed to fetch resume');
+      }
+      
+      return data.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
     }
-    return response.json();
   },
 
   generatePdf: async (html: string) => {
@@ -205,28 +215,38 @@ const resumeApi = {
     }
   },
 
-  generateDocx: async (html: string) => {
+  generateDocx: async (html: string): Promise<Blob> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
-        responseType: 'blob'
+      const response = await fetchWithTimeout(`${API_BASE_URL}/generate-docx`, {
+        method: 'POST',
+        body: JSON.stringify({ html }),
       });
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate DOCX');
+      }
+      
+      return await response.blob();
     } catch (error) {
-      console.error('Error generating DOCX:', error);
-      throw error;
+      throw new Error(handleApiError(error));
     }
   },
 
-  chatWithAI: async (message: string, resumeHtml: string) => {
+  chatWithAI: async (message: string, resumeData: ResumeData): Promise<ChatResponse> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/ai/chat/`, {
-        message,
-        resume_html: resumeHtml
+      const response = await fetchWithTimeout(`${API_BASE_URL}/chat`, {
+        method: 'POST',
+        body: JSON.stringify({ message, resumeData }),
       });
-      return response.data;
+      const data: ChatResponse = await response.json();
+      
+      if (data.status === 'error') {
+        throw new Error(data.message || 'Failed to get AI response');
+      }
+      
+      return data;
     } catch (error) {
-      console.error('Error chatting with AI:', error);
-      throw error;
+      throw new Error(handleApiError(error));
     }
   },
 
@@ -240,13 +260,21 @@ const resumeApi = {
     }
   },
 
-  updateResume: async (resumeId: number, updatedData: any) => {
+  updateResume: async (id: number, resumeData: ResumeData): Promise<ResumeData> => {
     try {
-      const response = await axios.patch(`${API_BASE_URL}/resume_preview`, updatedData, { params: { resume_id: resumeId } });
-      return response.data;
-    } catch (err) {
-      console.error('Error updating resume', err);
-      throw err;
+      const response = await fetchWithTimeout(`${API_BASE_URL}/resume/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(resumeData),
+      });
+      const data: ApiResponse<ResumeData> = await response.json();
+      
+      if (data.status === 'error' || !data.data) {
+        throw new Error(data.message || 'Failed to update resume');
+      }
+      
+      return data.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
     }
   }
 };

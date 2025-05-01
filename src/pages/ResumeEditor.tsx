@@ -1,280 +1,142 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ResumeData, ChatMessage } from '../types';
+import resumeApi from '../api/resumeApi';
+import { handleApiError } from '../utils/api';
 import html2pdf from 'html2pdf.js';
 import '../assets/ResumeEditor.css';
-import resumeApi from '../api/resumeApi';
 import ResumePreview from '../components/ResumePreview';
 
-interface ChatMessage {
-  content: string;
-  isUser: boolean;
-}
-
 const ResumeEditor: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { content: "Hello! I'm your resume assistant. I can help you optimize your resume. What would you like to improve?", isUser: false }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [resumeData, setResumeData] = useState<any>(null);
-  const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const userInputRef = useRef<HTMLInputElement>(null);
-  const [searchParams] = useSearchParams();
-  const resumeId = searchParams.get('resume_id');
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isChatting, setIsChatting] = useState(false);
 
-  useEffect(() => {
-    console.log("This is resume editor")
-    if (!resumeId) {
-      navigate('/');
-      return;
-    }
-    const fetchResume = async () => {
-      try {
-        const data = await resumeApi.getResume(Number(resumeId));
-        if (data) {
-          setResumeData(data);
-        } else {
-          navigate('/');
-        }
-      } catch (err) {
-        navigate('/');
-      }
-    };
-    fetchResume();
-  }, [resumeId, navigate]);
-
-  useEffect(() => {
-    if (chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
-
-  useEffect(() => {
-    console.log('resumeData:', resumeData);
-  }, [resumeData]);
-
-  const addMessage = (content: string, isUser: boolean) => {
-    setMessages((prevMessages: ChatMessage[]) => [...prevMessages, { content, isUser }]);
-  };
-
-  const resumeDataToHTML = (data: any) => {
-    if (!data) return '';
-    let html = `<h1>${data.name || ''}</h1>`;
-    html += `<p>Email: ${data.email || ''} | Phone: ${data.phone || ''} | Address: ${data.address || ''}</p>`;
+  const fetchResumeData = useCallback(async () => {
+    if (!id) return;
     
-    if (data.projects && data.projects.length > 0) {
-      html += '<h2>Projects</h2>';
-      data.projects.forEach((proj: any) => {
-        let desc = proj.description;
-        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-          try {
-            desc = JSON.parse(desc);
-          } catch (e1) {
-            try {
-              if (typeof desc === 'string') {
-                desc = JSON.parse(desc.replace(/'/g, '"'));
-              }
-            } catch (e2) {}
-          }
-        }
-        html += `<div><h3>${proj.name}</h3>`;
-        if (proj.position) html += `<p>Position: ${proj.position}</p>`;
-        html += `<p>Duration: ${proj.duration}</p>`;
-        if (Array.isArray(desc)) {
-          html += '<ul>';
-          desc.forEach(d => html += `<li>${d}</li>`);
-          html += '</ul>';
-        } else {
-          html += `<p>${desc}</p>`;
-        }
-        html += '</div>';
-      });
-    }
-    
-    if (data.jobs && data.jobs.length > 0) {
-      html += '<h2>Work Experience</h2>';
-      data.jobs.forEach((job: any) => {
-        let desc = job.description;
-        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-          try {
-            desc = JSON.parse(desc);
-          } catch (e1) {
-            try {
-              if (typeof desc === 'string') {
-                desc = JSON.parse(desc.replace(/'/g, '"'));
-              }
-            } catch (e2) {}
-          }
-        }
-        html += `<div><h3>${job.name} - ${job.position}</h3>`;
-        html += `<p>Duration: ${job.duration}</p>`;
-        if (Array.isArray(desc)) {
-          html += '<ul>';
-          desc.forEach(d => html += `<li>${d}</li>`);
-          html += '</ul>';
-        } else {
-          html += `<p>${desc}</p>`;
-        }
-        html += '</div>';
-      });
-    }
-    
-    if (data.researchs && data.researchs.length > 0) {
-      html += '<h2>Research</h2>';
-      data.researchs.forEach((res: any) => {
-        let desc = res.description;
-        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-          try {
-            desc = JSON.parse(desc);
-          } catch (e1) {
-            try {
-              if (typeof desc === 'string') {
-                desc = JSON.parse(desc.replace(/'/g, '"'));
-              }
-            } catch (e2) {}
-          }
-        }
-        html += `<div><h3>${res.name}</h3>`;
-        html += `<p>Duration: ${res.duration}</p>`;
-        if (Array.isArray(desc)) {
-          html += '<ul>';
-          desc.forEach(d => html += `<li>${d}</li>`);
-          html += '</ul>';
-        } else {
-          html += `<p>${desc}</p>`;
-        }
-        html += '</div>';
-      });
-    }
-    
-    if (data.educations && data.educations.length > 0) {
-      html += '<h2>Education</h2>';
-      data.educations.forEach((edu: any) => {
-        let desc = edu.description;
-        if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-          try {
-            desc = JSON.parse(desc);
-          } catch (e1) {
-            try {
-              if (typeof desc === 'string') {
-                desc = JSON.parse(desc.replace(/'/g, '"'));
-              }
-            } catch (e2) {}
-          }
-        }
-        html += `<div><h3>${edu.name}</h3>`;
-        html += `<p>${edu.degree} (${edu.duration})</p>`;
-        html += `<p>Major: ${edu.major}</p>`;
-        if (edu.gpa) html += `<p>GPA: ${edu.gpa}</p>`;
-        if (Array.isArray(desc)) {
-          html += '<ul>';
-          desc.forEach(d => html += `<li>${d}</li>`);
-          html += '</ul>';
-        } else if (desc) {
-          html += `<p>${desc}</p>`;
-        }
-        html += '</div>';
-      });
-    }
-    
-    return html;
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-    addMessage(inputValue, true);
-    setInputValue('');
-    setIsTyping(true);
     try {
-      const response = await resumeApi.chatWithAI(inputValue, resumeData);
-      setIsTyping(false);
-      if (response.status === 'success') {
-        addMessage(response.response, false);
-        if (response.updated_json) {
-          setResumeData(response.updated_json);
-          if (resumeId) {
-            await resumeApi.updateResume(Number(resumeId), response.updated_json);
-          }
-        }
-      } else {
-        addMessage("Sorry, I encountered an error processing your request.", false);
-      }
+      setLoading(true);
+      setError(null);
+      const data = await resumeApi.getResume(parseInt(id));
+      setResumeData(data);
     } catch (error) {
-      console.error('Chat API error:', error);
-      setIsTyping(false);
-      addMessage("Sorry, there was a problem connecting to the server.", false);
+      setError(handleApiError(error));
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchResumeData();
+  }, [fetchResumeData]);
+
+  const handleUpdateResume = async (updatedData: ResumeData) => {
+    if (!id) return;
+    
+    try {
+      setError(null);
+      const data = await resumeApi.updateResume(parseInt(id), updatedData);
+      setResumeData(data);
+    } catch (error) {
+      setError(handleApiError(error));
     }
   };
 
-  const handlePromptClick = (prompt: string) => {
-    setInputValue(prompt);
-    userInputRef.current?.focus();
+  const handleChat = async () => {
+    if (!resumeData || !currentMessage.trim()) return;
+    
+    try {
+      setIsChatting(true);
+      setError(null);
+      
+      const userMessage: ChatMessage = {
+        role: 'user',
+        content: currentMessage,
+        timestamp: new Date().toISOString()
+      };
+      
+      setChatMessages(prev => [...prev, userMessage]);
+      setCurrentMessage('');
+      
+      const response = await resumeApi.chatWithAI(currentMessage, resumeData);
+      
+      const aiMessage: ChatMessage = {
+        role: 'assistant',
+        content: response.message,
+        timestamp: new Date().toISOString()
+      };
+      
+      setChatMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      setError(handleApiError(error));
+    } finally {
+      setIsChatting(false);
+    }
   };
 
-  const handleDownloadPDF = () => {
-    const element = document.createElement('div');
-    element.innerHTML = resumeDataToHTML(resumeData);
+  const handleDownloadPDF = async () => {
+    if (!resumeData) return;
     
-    const opt = {
-      margin: 10,
-      filename: 'resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save();
+    try {
+      setError(null);
+      const element = document.getElementById('resume-preview');
+      if (!element) throw new Error('Resume preview element not found');
+      
+      const opt = {
+        margin: 1,
+        filename: 'resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      setError(handleApiError(error));
+    }
   };
 
   const handleDownloadDOCX = async () => {
+    if (!resumeData) return;
+    
     try {
-      const html = resumeDataToHTML(resumeData);
+      setError(null);
+      const element = document.getElementById('resume-preview');
+      if (!element) throw new Error('Resume preview element not found');
+      
+      const html = element.innerHTML;
       const blob = await resumeApi.generateDocx(html);
       
-      const url = window.URL.createObjectURL(new Blob([blob]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'resume.docx');
+      link.download = 'resume.docx';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading DOCX:', error);
-      alert('Error downloading DOCX file. Please try again.');
+      setError(handleApiError(error));
     }
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Print Resume</title>
-            <style>
-              body { 
-                font-family: 'Arial', sans-serif;
-                margin: 0;
-                padding: 20mm;
-              }
-            </style>
-          </head>
-          <body>
-            ${resumeDataToHTML(resumeData)}
-            <script>
-              window.onload = function() {
-                window.print();
-                window.setTimeout(function() { window.close(); }, 500);
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!resumeData) {
+    return <div>No resume data found</div>;
+  }
 
   return (
     <div className="resume-editor-container">
@@ -285,64 +147,25 @@ const ResumeEditor: React.FC = () => {
             <p>Chat with our AI to improve your resume</p>
           </div>
 
-          <div className="chat-messages" ref={chatMessagesRef}>
-            {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.isUser ? 'user' : 'bot'}`}>
-                <p>{msg.content}</p>
+          <div className="chat-messages">
+            {chatMessages.map((message, index) => (
+              <div key={index} className={`message ${message.role}`}>
+                {message.content}
               </div>
             ))}
-            
-            {isTyping && (
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            )}
           </div>
           
           <div className="chat-input">
             <input
               type="text"
-              ref={userInputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Type your message here..."
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              placeholder="Ask about your resume..."
+              disabled={isChatting}
             />
-            <button onClick={handleSendMessage}>
-              <i className="fas fa-paper-plane"></i>
+            <button onClick={handleChat} disabled={isChatting}>
+              {isChatting ? 'Sending...' : 'Send'}
             </button>
-          </div>
-
-          <div className="prompt-suggestions">
-            <h3>Suggestions:</h3>
-            <div className="prompt-buttons">
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Improve my project description")}
-              >
-                Improve description
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Add more technical details")}
-              >
-                Add technical details
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Make my position more impactful")}
-              >
-                Enhance impact
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Suggest additional skills")}
-              >
-                Suggest skills
-              </button>
-            </div>
           </div>
         </div>
       </div>
