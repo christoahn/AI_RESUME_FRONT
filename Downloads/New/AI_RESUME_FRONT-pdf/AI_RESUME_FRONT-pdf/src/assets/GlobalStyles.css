@@ -1,0 +1,91 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: white;
+  background-color: #1a1a1f;
+  background-image: linear-gradient(to bottom right, rgba(70, 10, 20, 0.3), rgba(20, 20, 25, 0.9));
+  background-attachment: fixed;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+}
+
+.content-container {
+  display: flex;
+  flex: 1;
+  padding-top: 2rem;
+}
+
+.sidebar {
+  width: 250px;
+  padding: 1.5rem;
+}
+
+.main-content {
+  flex: 1;
+  padding: 0 2rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.resume-preview-container {
+  display: flex;
+  margin-top: 2rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.resume-left {
+  width: 300px;
+  background-color: #252529;
+  padding: 1.5rem;
+  border-radius: 10px 0 0 10px;
+}
+
+.resume-right {
+  flex: 1;
+  background-color: white;
+  color: #333;
+  padding: 2rem;
+  border-radius: 0 10px 10px 0;
+  height: 750px;
+  overflow-y: auto;
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #3b3b3f;
+  border-radius: 50%;
+  color: white;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #4a90e2;
+}
+
