@@ -259,8 +259,130 @@ const ResumeEditor = (): ReactElement => {
       return;
     }
     
-    alert('DOCX download functionality is coming soon!');
-    // DOCX functionality placeholder
+    // Clone the resume document element
+    const element = document.querySelector('.resume-document')?.cloneNode(true) as HTMLElement;
+    if (!element) {
+      alert('Unable to find resume content');
+      return;
+    }
+    
+    // Create style element
+    const style = document.createElement('style');
+    style.innerHTML = `
+      body {
+        font-family: 'Arial', 'Helvetica', sans-serif;
+        line-height: 1.5;
+        color: #333;
+        letter-spacing: 0.2px;
+        font-size: 11pt;
+        background-color: white;
+      }
+      h1 {
+        font-size: 22pt;
+        margin-bottom: 8px;
+        color: #1a1a1a;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+        font-weight: 600;
+      }
+      h2 {
+        font-size: 14pt;
+        margin: 20px 0 10px 0;
+        border-bottom: 2px solid #2c3e50;
+        padding-bottom: 5px;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: bold;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+      }
+      h3 {
+        font-size: 12pt;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: bold;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+      }
+      p {
+        margin-bottom: 8px;
+        font-size: 11pt;
+      }
+      .contact-info {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 11pt;
+        color: #555;
+      }
+      .education-entry, .work-entry, .project-entry {
+        margin-bottom: 15px;
+      }
+      .position-duration {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .position {
+        font-style: italic;
+        color: #555;
+      }
+      .duration {
+        color: #777;
+      }
+      .coursework {
+        font-style: italic;
+        color: #444;
+        margin-top: 4px;
+      }
+      ul {
+        padding-left: 20px;
+        margin-bottom: 10px;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+    `;
+    
+    // Create a temporary container and append to document body
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.appendChild(style);
+    container.appendChild(element);
+    document.body.appendChild(container);
+    
+    // Convert to HTML string
+    const htmlContent = container.innerHTML;
+    
+    // Send to server for DOCX conversion
+    const generateDocx = async () => {
+      try {
+        // Set loading state or spinner here if needed
+        
+        // Call API to generate DOCX
+        const blob = await resumeApi.generateDocx(htmlContent);
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${resumeData.data.name || 'resume'}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        document.body.removeChild(container);
+      } catch (error) {
+        console.error('Error generating DOCX:', error);
+        alert('Failed to generate DOCX. Please try again.');
+        document.body.removeChild(container);
+      }
+    };
+    
+    generateDocx();
   };
 
   return (

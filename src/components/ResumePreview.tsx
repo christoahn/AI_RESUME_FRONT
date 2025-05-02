@@ -1,6 +1,18 @@
 import React from 'react';
 import '../assets/ResumePreview.css';
 
+// Add inline styles for note messages since the CSS file might be deleted
+const styles = {
+  noteMessage: {
+    fontStyle: 'italic',
+    color: '#666',
+    backgroundColor: '#f8f8f8',
+    padding: '8px',
+    borderRadius: '4px',
+    fontSize: '0.9em'
+  }
+};
+
 interface Project {
   title?: string;
   name?: string;
@@ -57,25 +69,79 @@ const processDescription = (desc: string | string[] | undefined): string | strin
   if (!desc) return '';
   
   if (typeof desc === 'string') {
-    if (desc === '[]' || desc === '[' || desc === ']') {
+    // Handle special error messages
+    if (desc === '[]' || desc === '[' || desc === ']' || 
+        desc === 'Failed to parse generated content. Please try again.' ||
+        desc === 'Your content will appear here once generated. Please try again with your request.') {
       return '';
     }
+    
+    // Handle other error-like messages but still show them
+    if (desc.includes('Failed to parse generated content') ||
+        desc.includes('Your content will appear here') ||
+        desc.includes('Please provide more specific details')) {
+      // Clean up the message for display
+      return desc;
+    }
+    
     if (desc.trim().startsWith('[')) {
       try {
-        return JSON.parse(desc);
+        // First attempt: standard JSON parse
+        const parsed = JSON.parse(desc);
+        // Check if it's an empty array or contains only empty strings
+        if (Array.isArray(parsed) && (parsed.length === 0 || parsed.every(item => item === ''))) {
+          return '';
+        }
+        return parsed;
       } catch (e1) {
         try {
-          return JSON.parse(desc.replace(/'/g, '"'));
+          // Second attempt: replace single quotes with double quotes
+          const parsed = JSON.parse(desc.replace(/'/g, '"'));
+          // Check if it's an empty array or contains only empty strings
+          if (Array.isArray(parsed) && (parsed.length === 0 || parsed.every(item => item === ''))) {
+            return '';
+          }
+          return parsed;
         } catch (e2) {
-          desc = desc.replace(/^\[|\]$/g, '')
-          desc = desc.split(/', '|', "|", '|", "/ )
-          return desc;
+          try {
+            // Third attempt: remove brackets and parse as comma-separated items
+            const cleaned = desc.replace(/^\[|\]$/g, '').trim();
+            
+            // Handle multiple delimiter patterns
+            const items = cleaned.split(/,\s*(?=["']|[^,"']+$)/);
+            
+            // Clean up each item
+            const result = items.map(item => 
+              item.trim()
+                .replace(/^["']|["']$/g, '') // Remove quotes at start/end
+                .replace(/\\"/g, '"') // Convert escaped quotes
+                .trim()
+            ).filter(item => item !== ''); // Remove empty items
+            
+            // If all items were empty, return empty string
+            if (result.length === 0) {
+              return '';
+            }
+            
+            return result;
+          } catch (e3) {
+            // Last resort: just remove brackets and return as single string
+            const result = desc.replace(/^\[|\]$/g, '').trim();
+            return result === '' ? '' : result;
+          }
         }
       }
     }
+  } else if (Array.isArray(desc)) {
+    // If it's already an array, filter out empty strings
+    const filtered = desc.filter(item => item && item.trim() !== '');
+    if (filtered.length === 0) {
+      return '';
+    }
+    return filtered;
   }
 
-  return desc
+  return desc;
 };
 
 const ResumePreview = (props: ResumePreviewProps) => {
@@ -146,12 +212,18 @@ const ResumePreview = (props: ResumePreviewProps) => {
                       <span className="position">{job.position}</span>
                       <span className="duration">{job.duration}</span>
                     </div>
-                    {Array.isArray(desc) ? (
+                    {desc && Array.isArray(desc) && desc.length > 0 ? (
                       <ul>
-                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                        {desc.map((d, i) => (
+                          <li key={i}>{d}</li>
+                        ))}
                       </ul>
                     ) : (
-                      <p>{desc}</p>
+                      desc && typeof desc === 'string' && desc.trim() !== '' ? (
+                        desc.includes('Please') || desc.includes('content will appear') ? 
+                          <p style={styles.noteMessage}>{desc}</p> :
+                          <p>{desc}</p>
+                      ) : null
                     )}
                   </div>
                 );
@@ -164,7 +236,7 @@ const ResumePreview = (props: ResumePreviewProps) => {
               <h2>Projects</h2>
               {resumeData.projects.map((proj, idx) => {
                 const desc = processDescription(proj.description);
-                console.log(desc)
+                
                 return (
                   <div key={idx} className="project-entry">
                     <h3>{proj.name}</h3>
@@ -172,12 +244,18 @@ const ResumePreview = (props: ResumePreviewProps) => {
                       {proj.position && <span className="position">{proj.position}</span>}
                       <span className="duration">{proj.duration}</span>
                     </div>
-                    {Array.isArray(desc) ? (
+                    {desc && Array.isArray(desc) && desc.length > 0 ? (
                       <ul>
-                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                        {desc.map((d, i) => (
+                          <li key={i}>{d}</li>
+                        ))}
                       </ul>
                     ) : (
-                      <p>{desc}</p>
+                      desc && typeof desc === 'string' && desc.trim() !== '' ? (
+                        desc.includes('Please') || desc.includes('content will appear') ? 
+                          <p style={styles.noteMessage}>{desc}</p> :
+                          <p>{desc}</p>
+                      ) : null
                     )}
                   </div>
                 );
@@ -197,12 +275,18 @@ const ResumePreview = (props: ResumePreviewProps) => {
                     <div className="position-duration">
                       <span className="duration">{res.duration}</span>
                     </div>
-                    {Array.isArray(desc) ? (
+                    {desc && Array.isArray(desc) && desc.length > 0 ? (
                       <ul>
-                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                        {desc.map((d, i) => (
+                          <li key={i}>{d}</li>
+                        ))}
                       </ul>
                     ) : (
-                      <p>{desc}</p>
+                      desc && typeof desc === 'string' && desc.trim() !== '' ? (
+                        desc.includes('Please') || desc.includes('content will appear') ? 
+                          <p style={styles.noteMessage}>{desc}</p> :
+                          <p>{desc}</p>
+                      ) : null
                     )}
                   </div>
                 );

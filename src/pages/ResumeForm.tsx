@@ -335,7 +335,6 @@ const ResumeForm: React.FC = () => {
                 name="phone" 
                 value={basicInfo.phone}
                 onChange={handleBasicInfoChange}
-                required 
               />
             </div>
             <div className="form-group">
@@ -346,7 +345,6 @@ const ResumeForm: React.FC = () => {
                 name="linkedin" 
                 value={basicInfo.linkedin}
                 onChange={handleBasicInfoChange}
-                required 
               />
             </div>
             <div className="form-group">

@@ -199,7 +199,10 @@ const resumeApi = {
   generatePdf: async (html: string) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: {
+          'X-Format-Type': 'pdf'
+        }
       });
       return response.data;
     } catch (error) {
@@ -211,7 +214,10 @@ const resumeApi = {
   generateDocx: async (html: string) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/resume_preview/`, { html }, {
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: {
+          'X-Format-Type': 'docx'
+        }
       });
       return response.data;
     } catch (error) {
@@ -226,10 +232,54 @@ const resumeApi = {
         message,
         resume_html: resumeHtml
       });
-      return response.data;
+      
+      // Additional validation for response data
+      const data = response.data;
+      
+      // Ensure we have a valid response object
+      if (!data) {
+        return {
+          status: 'error',
+          response: 'No response received from server.'
+        };
+      }
+      
+      // Check if the server reported an error
+      if (data.error) {
+        return {
+          status: 'error',
+          response: data.error
+        };
+      }
+      
+      // If there's an updated_json object, validate it's properly formatted
+      if (data.updated_json) {
+        try {
+          // If it's a string (which it shouldn't be, but just in case), parse it
+          if (typeof data.updated_json === 'string') {
+            data.updated_json = JSON.parse(data.updated_json);
+          }
+          
+          // Ensure the updated_json has the expected structure
+          if (!data.updated_json.name || !data.updated_json.email) {
+            console.warn('Invalid resume JSON structure detected');
+            // Don't update the JSON if it's malformed
+            delete data.updated_json;
+          }
+        } catch (parseError) {
+          console.error('Error parsing updated_json:', parseError);
+          // Don't update the JSON if it can't be parsed
+          delete data.updated_json;
+        }
+      }
+      
+      return data;
     } catch (error) {
       console.error('Error chatting with AI:', error);
-      throw error;
+      return {
+        status: 'error',
+        response: 'Failed to connect to the AI service. Please try again later.'
+      };
     }
   },
 
