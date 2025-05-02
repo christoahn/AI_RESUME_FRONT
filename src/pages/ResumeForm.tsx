@@ -18,6 +18,7 @@ interface Education {
   major: string;
   duration: string;
   gpa?: string;
+  coursework?: string;
 }
 
 interface WorkExperience {
@@ -59,7 +60,8 @@ const ResumeForm: React.FC = () => {
     degree: '',
     major: '',
     duration: '',
-    gpa: ''
+    gpa: '',
+    coursework: ''
   }]);
   
   const [workExperienceList, setWorkExperienceList] = useState<WorkExperience[]>([{
@@ -133,7 +135,8 @@ const ResumeForm: React.FC = () => {
       degree: '',
       major: '',
       duration: '',
-      gpa: ''
+      gpa: '',
+      coursework: ''
     }]);
   };
   
@@ -428,6 +431,16 @@ const ResumeForm: React.FC = () => {
                     id={`gpa-${index}`} 
                     name="gpa" 
                     value={edu.gpa}
+                    onChange={(e) => handleEducationChange(index, e)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor={`coursework-${index}`}>Coursework (Optional)</label>
+                  <input 
+                    type="text" 
+                    id={`coursework-${index}`} 
+                    name="coursework" 
+                    value={edu.coursework}
                     onChange={(e) => handleEducationChange(index, e)}
                   />
                 </div>
