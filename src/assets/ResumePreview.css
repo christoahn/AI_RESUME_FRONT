@@ -80,10 +80,11 @@
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   min-height: 11in;
   font-family: 'Georgia', 'Garamond', serif;
-  line-height: 1.6;
+  line-height: 1.5;
   color: #333;
   position: relative;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  font-size: 0.75rem;
 }
 
 .empty-preview {
@@ -110,8 +111,8 @@
 }
 
 .resume-document h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
   color: #1a1a1a;
   text-align: center;
   text-transform: uppercase;
@@ -119,10 +120,10 @@
 }
 
 .resume-document h2 {
-  font-size: 1.1rem;
-  margin: 1.5rem 0 0.75rem 0;
+  font-size: 0.9rem;
+  margin: 1.3rem 0 0.6rem 0;
   border-bottom: 2px solid #2c3e50;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.3rem;
   color: #2c3e50;
   text-transform: uppercase;
   letter-spacing: 1.2px;
@@ -130,15 +131,15 @@
 }
 
 .resume-document h3 {
-  font-size: 1.05rem;
-  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
   color: #333;
   font-weight: bold;
 }
 
 .resume-document p {
-  margin-bottom: 0.6rem;
-  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
 }
 
 .resume-document ul {
@@ -147,8 +148,8 @@
 }
 
 .resume-document li {
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
   position: relative;
 }
 
@@ -161,8 +162,8 @@
 
 .contact-info {
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  margin-bottom: 1.3rem;
+  font-size: 0.73rem;
   color: #555;
 }
 
@@ -174,8 +175,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.73rem;
 }
 
 .position {

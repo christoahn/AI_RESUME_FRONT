@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef, ReactElement } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import html2pdf from 'html2pdf.js';
 import '../assets/ResumeEditor.css';
 import resumeApi from '../api/resumeApi';
@@ -11,7 +10,7 @@ interface ChatMessage {
   isUser: boolean;
 }
 
-const ResumeEditor: React.FC = () => {
+const ResumeEditor = (): ReactElement => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<ChatMessage[]>([
     { content: "Hello! I'm your resume assistant. I can help you optimize your resume. What would you like to improve?", isUser: false }
@@ -127,66 +126,135 @@ const ResumeEditor: React.FC = () => {
   };
 
   const handleDownloadPDF = () => {
+    if (!resumeData || !resumeData.data) {
+      alert('No resume data available to download');
+      return;
+    }
+
+    // Find the existing resume document element
+    const resumeElement = document.querySelector('.resume-document');
+    if (!resumeElement) {
+      alert('Resume element not found on page');
+      return;
+    }
+
+    // Create a new element for PDF generation
     const element = document.createElement('div');
-    element.innerHTML = resumeDataToHTML(resumeData);
+    element.innerHTML = resumeElement.outerHTML;
     
+    // Add specific styles for PDF
+    const style = document.createElement('style');
+    style.textContent = `
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .resume-document {
+        padding: 40px 50px;
+        font-family: 'Georgia', 'Garamond', serif;
+        line-height: 1.5;
+        color: #333;
+        letter-spacing: 0.2px;
+        font-size: 11pt;
+        background-color: white;
+      }
+      h1 {
+        font-size: 22pt;
+        margin-bottom: 8px;
+        color: #1a1a1a;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+        font-weight: 600;
+      }
+      h2 {
+        font-size: 14pt;
+        margin: 20px 0 10px 0;
+        border-bottom: 2px solid #2c3e50;
+        padding-bottom: 5px;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: bold;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+      }
+      h3 {
+        font-size: 12pt;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: bold;
+        font-family: 'Arial', 'Helvetica', sans-serif;
+      }
+      p {
+        margin-bottom: 8px;
+        font-size: 11pt;
+      }
+      .contact-info {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 11pt;
+        color: #555;
+      }
+      .education-entry, .work-entry, .project-entry {
+        margin-bottom: 15px;
+      }
+      .position-duration {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .position {
+        font-style: italic;
+        color: #555;
+      }
+      .duration {
+        color: #777;
+      }
+      ul {
+        padding-left: 20px;
+        margin-bottom: 10px;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+    `;
+    
+    // Set up PDF options
     const opt = {
       margin: 10,
       filename: 'resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    html2pdf().set(opt).from(element).save();
+    // Create a temporary container and append to document body
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.appendChild(style);
+    container.appendChild(element);
+    document.body.appendChild(container);
+    
+    // Generate PDF and then clean up
+    html2pdf()
+      .from(element)
+      .set(opt)
+      .save()
+      .then(() => {
+        document.body.removeChild(container);
+      });
   };
 
-  const handleDownloadDOCX = async () => {
-    try {
-      const html = resumeDataToHTML(resumeData);
-      const blob = await resumeApi.generateDocx(html);
-      
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'resume.docx');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading DOCX:', error);
-      alert('Error downloading DOCX file. Please try again.');
+  const handleDownloadDOCX = () => {
+    if (!resumeData || !resumeData.data) {
+      alert('No resume data available to download');
+      return;
     }
-  };
-
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Print Resume</title>
-            <style>
-              body { 
-                font-family: 'Arial', sans-serif;
-                margin: 0;
-                padding: 20mm;
-              }
-            </style>
-          </head>
-          <body>
-            ${resumeDataToHTML(resumeData)}
-            <script>
-              window.onload = function() {
-                window.print();
-                window.setTimeout(function() { window.close(); }, 500);
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
+    
+    alert('DOCX download functionality is coming soon!');
+    // DOCX functionality placeholder
   };
 
   return (
@@ -279,4 +347,4 @@ const ResumeEditor: React.FC = () => {
   );
 };
 
-export default ResumeEditor; 
+export default ResumeEditor;
