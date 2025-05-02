@@ -15,6 +15,7 @@ interface Education {
   major: string;
   duration: string;
   gpa?: string;
+  coursework?: string;
 }
 
 interface WorkExperience {
@@ -143,6 +144,7 @@ const resumeApi = {
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
             'gpa': formatValue(edu.gpa),
+            'coursework': formatValue(edu.coursework),
             // 'description': formatValue(edu.description)
           };
         });
@@ -154,6 +156,7 @@ const resumeApi = {
             'major': formatValue(edu.major),
             'duration': formatValue(edu.duration),
             'gpa': formatValue(edu.gpa),
+            'coursework': formatValue(edu.coursework),
             // 'description': formatValue(edu.description)
           };
         });

@@ -88,7 +88,7 @@ const ResumeEditor = (): ReactElement => {
     if (data.educations && data.educations.length > 0) {
       html += '<h2>Education</h2>';
       data.educations.forEach((edu: any) => {
-        html += `<div><h3>${edu.name}</h3><p>${edu.degree} (${edu.duration})</p><p>Major: ${edu.major}</p>${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}${edu.coursework ? `<p class="coursework">Coursework: ${edu.coursework}</p>` : ''}</div>`;
+        html += `<div><h3>${edu.name}</h3><p>${edu.degree} (${edu.duration})</p><p>Major: ${edu.major}</p>${edu.gpa ? `<p>GPA: ${edu.gpa}</p>` : ''}${edu.coursework && edu.coursework.trim() !== '' ? `<p class="coursework">Coursework: ${edu.coursework}</p>` : ''}</div>`;
       });
     }
     

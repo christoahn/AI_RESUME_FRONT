@@ -119,7 +119,7 @@ const ResumePreview = (props: ResumePreviewProps) => {
                       <span className="duration">{edu.duration}</span>
                     </div>
                     {edu.gpa && <p>GPA: {edu.gpa}</p>}
-                    {edu.coursework && <p className="coursework">Coursework: {edu.coursework}</p>}
+                    {edu.coursework && edu.coursework.trim() !== "" && <p className="coursework">Coursework: {edu.coursework}</p>}
                     {Array.isArray(desc) ? (
                       <ul>
                         {desc.map((d, i) => <li key={i}>{d}</li>)}
