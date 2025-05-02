@@ -51,11 +51,32 @@ interface ResumePreviewProps {
   handleDownloadDOCX: () => void;
 }
 
-const ResumePreview: React.FC<ResumePreviewProps> = ({
-  resumeData,
-  handleDownloadPDF,
-  handleDownloadDOCX,
-}) => {
+// Helper function to safely process description fields
+const processDescription = (desc: string | string[] | undefined): string | string[] => {
+  if (!desc) return '';
+  
+  if (typeof desc === 'string') {
+    if (desc === '[]' || desc === '[' || desc === ']') {
+      return '';
+    }
+    if (desc.trim().startsWith('[')) {
+      try {
+        return JSON.parse(desc);
+      } catch (e1) {
+        try {
+          return JSON.parse(desc.replace(/'/g, '"'));
+        } catch (e2) {
+          return desc.replace(/^\[|\]$/g, '').replace(/\[|\]/g, '');
+        }
+      }
+    }
+  }
+  return desc;
+};
+
+const ResumePreview = (props: ResumePreviewProps) => {
+  const { resumeData, handleDownloadPDF, handleDownloadDOCX } = props;
+
   const handlePrint = () => {
     window.print();
   };
@@ -78,32 +99,22 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       <div className="preview-content">
         <div className="resume-document">
           <h1>{resumeData.name}</h1>
-          <p>Email: {resumeData.email} | Phone: {resumeData.phone} | Address: {resumeData.address}</p>
+          <p className="contact-info">Email: {resumeData.email} | Phone: {resumeData.phone} | Address: {resumeData.address}</p>
 
-          {resumeData.projects && resumeData.projects.length > 0 && (
+          {resumeData.educations && resumeData.educations.length > 0 && (
             <section>
-              <h2>Projects</h2>
-              {resumeData.projects.map((proj, idx) => {
-                let desc = proj.description;
-                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-                  try {
-                    desc = JSON.parse(desc);
-                  } catch (e1) {
-                    try {
-                      if (typeof desc === 'string') {
-                        desc = JSON.parse(desc.replace(/'/g, '"'));
-                      }
-                    } catch (e2) {
-                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
-                    }
-                  }
-                }
-                console.log('최종 desc(projects):', desc, Array.isArray(desc));
+              <h2>Education</h2>
+              {resumeData.educations.map((edu, idx) => {
+                const desc = processDescription(edu.description);
+                
                 return (
-                  <div key={idx} className="resume-section">
-                    <h3>{proj.name}</h3>
-                    {proj.position && <p>Position: {proj.position}</p>}
-                    <p>Duration: {proj.duration}</p>
+                  <div key={idx} className="education-entry">
+                    <h3>{edu.name}</h3>
+                    <div className="position-duration">
+                      <span className="position">{edu.degree}, Major: {edu.major}</span>
+                      <span className="duration">{edu.duration}</span>
+                    </div>
+                    {edu.gpa && <p>GPA: {edu.gpa}</p>}
                     {Array.isArray(desc) ? (
                       <ul>
                         {desc.map((d, i) => <li key={i}>{d}</li>)}
@@ -121,25 +132,41 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <section>
               <h2>Work Experience</h2>
               {resumeData.jobs.map((job, idx) => {
-                let desc = job.description;
-                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-                  try {
-                    desc = JSON.parse(desc);
-                  } catch (e1) {
-                    try {
-                      if (typeof desc === 'string') {
-                        desc = JSON.parse(desc.replace(/'/g, '"'));
-                      }
-                    } catch (e2) {
-                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
-                    }
-                  }
-                }
-                console.log('최종 desc(jobs):', desc, Array.isArray(desc));
+                const desc = processDescription(job.description);
+                
                 return (
-                  <div key={idx} className="resume-section">
-                    <h3>{job.name} - {job.position}</h3>
-                    <p>Duration: {job.duration}</p>
+                  <div key={idx} className="work-entry">
+                    <h3>{job.name}</h3>
+                    <div className="position-duration">
+                      <span className="position">{job.position}</span>
+                      <span className="duration">{job.duration}</span>
+                    </div>
+                    {Array.isArray(desc) ? (
+                      <ul>
+                        {desc.map((d, i) => <li key={i}>{d}</li>)}
+                      </ul>
+                    ) : (
+                      <p>{desc}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </section>
+          )}
+          
+          {resumeData.projects && resumeData.projects.length > 0 && (
+            <section>
+              <h2>Projects</h2>
+              {resumeData.projects.map((proj, idx) => {
+                const desc = processDescription(proj.description);
+                
+                return (
+                  <div key={idx} className="project-entry">
+                    <h3>{proj.name}</h3>
+                    <div className="position-duration">
+                      {proj.position && <span className="position">{proj.position}</span>}
+                      <span className="duration">{proj.duration}</span>
+                    </div>
                     {Array.isArray(desc) ? (
                       <ul>
                         {desc.map((d, i) => <li key={i}>{d}</li>)}
@@ -157,63 +184,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <section>
               <h2>Research</h2>
               {resumeData.researchs.map((res, idx) => {
-                let desc = res.description;
-                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-                  try {
-                    desc = JSON.parse(desc);
-                  } catch (e1) {
-                    try {
-                      if (typeof desc === 'string') {
-                        desc = JSON.parse(desc.replace(/'/g, '"'));
-                      }
-                    } catch (e2) {
-                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
-                    }
-                  }
-                }
-                console.log('최종 desc(researchs):', desc, Array.isArray(desc));
+                const desc = processDescription(res.description);
+                
                 return (
-                  <div key={idx} className="resume-section">
+                  <div key={idx} className="project-entry">
                     <h3>{res.name}</h3>
-                    <p>Duration: {res.duration}</p>
-                    {Array.isArray(desc) ? (
-                      <ul>
-                        {desc.map((d, i) => <li key={i}>{d}</li>)}
-                      </ul>
-                    ) : (
-                      <p>{desc}</p>
-                    )}
-                  </div>
-                );
-              })}
-            </section>
-          )}
-
-          {resumeData.educations && resumeData.educations.length > 0 && (
-            <section>
-              <h2>Education</h2>
-              {resumeData.educations.map((edu, idx) => {
-                let desc = edu.description;
-                if (typeof desc === 'string' && desc.trim().startsWith('[')) {
-                  try {
-                    desc = JSON.parse(desc);
-                  } catch (e1) {
-                    try {
-                      if (typeof desc === 'string') {
-                        desc = JSON.parse(desc.replace(/'/g, '"'));
-                      }
-                    } catch (e2) {
-                      console.log('JSON.parse 실패(큰따옴표, 작은따옴표 모두):', desc, e2);
-                    }
-                  }
-                }
-                console.log('최종 desc(educations):', desc, Array.isArray(desc));
-                return (
-                  <div key={idx} className="resume-section">
-                    <h3>{edu.name}</h3>
-                    <p>{edu.degree} ({edu.duration})</p>
-                    <p>Major: {edu.major}</p>
-                    {edu.gpa && <p>GPA: {edu.gpa}</p>}
+                    <div className="position-duration">
+                      <span className="duration">{res.duration}</span>
+                    </div>
                     {Array.isArray(desc) ? (
                       <ul>
                         {desc.map((d, i) => <li key={i}>{d}</li>)}
