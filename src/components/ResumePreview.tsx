@@ -67,12 +67,15 @@ const processDescription = (desc: string | string[] | undefined): string | strin
         try {
           return JSON.parse(desc.replace(/'/g, '"'));
         } catch (e2) {
-          return desc.replace(/^\[|\]$/g, '').replace(/\[|\]/g, '');
+          desc = desc.replace(/^\[|\]$/g, '')
+          desc = desc.split(/', '|', "|", '|", "/ )
+          return desc;
         }
       }
     }
   }
-  return desc;
+
+  return desc
 };
 
 const ResumePreview = (props: ResumePreviewProps) => {
@@ -161,7 +164,7 @@ const ResumePreview = (props: ResumePreviewProps) => {
               <h2>Projects</h2>
               {resumeData.projects.map((proj, idx) => {
                 const desc = processDescription(proj.description);
-                
+                console.log(desc)
                 return (
                   <div key={idx} className="project-entry">
                     <h3>{proj.name}</h3>

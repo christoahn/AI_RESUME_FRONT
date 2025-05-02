@@ -65,6 +65,7 @@ const ResumeEditor = (): ReactElement => {
     
     if (data.projects && data.projects.length > 0) {
       html += '<h2>Projects</h2>';
+      console.log(typeof data.projects)
       data.projects.forEach((proj: any) => {
         html += `<div><h3>${proj.name}</h3><p>Duration: ${proj.duration}</p><p>${proj.description}</p></div>`;
       });
