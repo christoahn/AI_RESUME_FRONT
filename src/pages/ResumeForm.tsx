@@ -200,8 +200,8 @@ const ResumeForm: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep === 0) {
-      if (!basicInfo.name || !basicInfo.email || !basicInfo.phone || !basicInfo.address) {
-        alert('Please fill in all basic information fields');
+      if (!basicInfo.name || !basicInfo.email) {
+        alert('Please fill in required basic information fields');
         return;
       }
     } else if (currentStep === 1) {

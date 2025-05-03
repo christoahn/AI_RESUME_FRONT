@@ -1,7 +1,7 @@
 import React from 'react';
 import '../assets/ResumePreview.css';
 
-// Add inline styles for note messages since the CSS file might be deleted
+
 const styles = {
   noteMessage: {
     fontStyle: 'italic',
@@ -59,12 +59,13 @@ interface ResumeData {
 }
 
 interface ResumePreviewProps {
-  resumeData: ResumeData;
-  handleDownloadPDF: () => void;
-  handleDownloadDOCX: () => void;
+  resumeData?: ResumeData;
+  data?: any; // 청크, 기존 코드와의 호환성을 위해 추가
+  handleDownloadPDF?: () => void;
+  handleDownloadDOCX?: () => void;
 }
 
-// Helper function to safely process description fields
+
 const processDescription = (desc: string | string[] | undefined): string | string[] => {
   if (!desc) return '';
   
@@ -145,7 +146,29 @@ const processDescription = (desc: string | string[] | undefined): string | strin
 };
 
 const ResumePreview = (props: ResumePreviewProps) => {
-  const { resumeData, handleDownloadPDF, handleDownloadDOCX } = props;
+  const { data, resumeData: propResumeData, handleDownloadPDF, handleDownloadDOCX } = props;
+  
+  //청크
+  // 새 데이터 형식 또는 이전 데이터 형식 사용
+  const resumeData = propResumeData || (data ? {
+    name: data.name || '',
+    phone: data.phone || '',
+    email: data.email || '',
+    address: data.address || '',
+    projects: data.projects ? (Array.isArray(data.projects) ? data.projects : Object.values(data.projects)) : [],
+    jobs: data.jobs ? (Array.isArray(data.jobs) ? data.jobs : Object.values(data.jobs)) : [],
+    researchs: data.researches ? (Array.isArray(data.researches) ? data.researches : Object.values(data.researches)) : [],
+    educations: data.educations ? (Array.isArray(data.educations) ? data.educations : Object.values(data.educations)) : []
+  } : {
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    projects: [],
+    jobs: [],
+    researchs: [],
+    educations: []
+  });
 
   const handlePrint = () => {
     window.print();
@@ -159,12 +182,15 @@ const ResumePreview = (props: ResumePreviewProps) => {
     <div className="resume-preview-container">
       <div className="preview-header">
         <h2>Resume Preview</h2>
-        <div className="preview-actions">
-          <button className="action-btn pdf" onClick={handleDownloadPDF}>📄 PDF</button>
-          <button className="action-btn docx" onClick={handleDownloadDOCX}>📝 DOCX</button>
-          <button className="action-btn print" onClick={handlePrint}>🖨️ Print</button>
-          <button className="action-btn share" onClick={handleCopyLink}>🔗 Share</button>
-        </div>
+        //청크 수정
+        {handleDownloadPDF && handleDownloadDOCX && (
+          <div className="preview-actions">
+            <button className="action-btn pdf" onClick={handleDownloadPDF}>📄 PDF</button>
+            <button className="action-btn docx" onClick={handleDownloadDOCX}>📝 DOCX</button>
+            <button className="action-btn print" onClick={handlePrint}>🖨️ Print</button>
+            <button className="action-btn share" onClick={handleCopyLink}>🔗 Share</button>
+          </div>
+        )}
       </div>
       <div className="preview-content">
         <div className="resume-document">

@@ -4,11 +4,15 @@ import html2pdf from 'html2pdf.js';
 import '../assets/ResumeEditor.css';
 import resumeApi from '../api/resumeApi';
 import ResumePreview from '../components/ResumePreview';
+//청크
+import ChunkEditor from '../components/ChunkEditor';
 
 interface ChatMessage {
   content: string;
   isUser: boolean;
 }
+//청크
+type EditorTab = 'chat' | 'chunk-editor' | 'preview';
 
 const ResumeEditor = (): ReactElement => {
   const navigate = useNavigate();
@@ -22,6 +26,7 @@ const ResumeEditor = (): ReactElement => {
   const userInputRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
+  const [activeTab, setActiveTab] = useState<EditorTab>('chat');
 
   useEffect(() => {
     console.log("This is resume editor")
@@ -132,18 +137,18 @@ const ResumeEditor = (): ReactElement => {
       return;
     }
 
-    // Find the existing resume document element
+    
     const resumeElement = document.querySelector('.resume-document');
     if (!resumeElement) {
       alert('Resume element not found on page');
       return;
     }
 
-    // Create a new element for PDF generation
+    
     const element = document.createElement('div');
     element.innerHTML = resumeElement.outerHTML;
     
-    // Add specific styles for PDF
+    
     const style = document.createElement('style');
     style.textContent = `
       body {
@@ -385,91 +390,128 @@ const ResumeEditor = (): ReactElement => {
     generateDocx();
   };
 
-  return (
-    <div className="resume-editor-container">
-      <div className="chat-section">
-        <div className="chat-container">
-          <div className="chat-header">
-            <h2>AI Resume Assistant</h2>
-            <p>Chat with our AI to improve your resume</p>
-          </div>
+  const handleChunkUpdated = (chunkType: string, chunkId: number, updatedContent: string) => {
+    if (resumeId) {
+      resumeApi.getResume(Number(resumeId))
+        .then(data => {
+          setResumeData(data);
+        })
+        .catch(err => {
+          console.error('Failed to refresh resume data:', err);
+        });
+    }
+  };
 
-          <div className="chat-messages" ref={chatMessagesRef}>
-            {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.isUser ? 'user' : 'bot'}`}>
-                <p>{msg.content}</p>
-              </div>
-            ))}
-            
-            {isTyping && (
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            )}
-          </div>
-          
-          <div className="chat-input">
-            <input
-              type="text"
-              ref={userInputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Type your message here..."
-            />
-            <button onClick={handleSendMessage}>
-              <i className="fas fa-paper-plane"></i>
-            </button>
-          </div>
+  const handleTabChange = (tab: EditorTab) => {
+    setActiveTab(tab);
+  };
 
-          <div className="prompt-suggestions">
-            <h3>Suggestions:</h3>
-            <div className="prompt-buttons">
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'chat':
+        return (
+          <div className="chat-container">
+            <div className="chat-messages" ref={chatMessagesRef}>
+              {messages.map((message, index) => (
+                <div key={index} className={`message ${message.isUser ? 'user-message' : 'ai-message'}`}>
+                  {message.content}
+                </div>
+              ))}
+              {isTyping && (
+                <div className="message ai-message">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="user-input-container">
+              <input
+                type="text"
+                ref={userInputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder="Ask me how to improve your resume..."
+                disabled={isTyping}
+              />
               <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Improve my project description")}
+                onClick={handleSendMessage}
+                disabled={isTyping || !inputValue.trim()}
               >
-                Improve description
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Add more technical details")}
-              >
-                Add technical details
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Make my position more impactful")}
-              >
-                Enhance impact
-              </button>
-              <button 
-                className="prompt-btn" 
-                onClick={() => handlePromptClick("Suggest additional skills")}
-              >
-                Suggest skills
+                Send
               </button>
             </div>
+            <div className="quick-prompts">
+              <p>Try asking:</p>
+              <div className="prompt-buttons">
+                <button onClick={() => handlePromptClick("Please make my resume more professional.")}>Make it more professional</button>
+                <button onClick={() => handlePromptClick("Fix any grammar issues in my resume.")}>Fix grammar</button>
+                <button onClick={() => handlePromptClick("Improve my project descriptions.")}>Improve project descriptions</button>
+                <button onClick={() => handlePromptClick("Help me highlight my achievements better.")}>Highlight achievements</button>
+              </div>
+            </div>
           </div>
+        );
+      
+      case 'chunk-editor':
+        return resumeId ? (
+          <ChunkEditor
+            resumeId={Number(resumeId)}
+            onChunkUpdated={handleChunkUpdated}
+          />
+        ) : (
+          <div className="error-message">Resume ID is missing. Please try again.</div>
+        );
+      
+      case 'preview':
+        return (
+          <div className="preview-container">
+            <div className="preview-actions">
+              <button onClick={handleDownloadPDF} className="download-btn">Export PDF</button>
+              <button onClick={handleDownloadDOCX} className="download-btn">Export DOCX</button>
+            </div>
+            <div className="resume-preview-wrapper">
+              {resumeData && resumeData.data && <ResumePreview data={resumeData.data} />}
+            </div>
+          </div>
+        );
+      
+      default:
+        return <div>no slected tap.</div>;
+    }
+  };
+
+  return (
+    <div className="resume-editor-page">
+      <div className="editor-header">
+        <h1>Resume Editor</h1>
+        <div className="editor-tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
+            onClick={() => handleTabChange('chat')}
+          >
+            Full Resume Chat
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'chunk-editor' ? 'active' : ''}`}
+            onClick={() => handleTabChange('chunk-editor')}
+          >
+            Section Editor
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`}
+            onClick={() => handleTabChange('preview')}
+          >
+            Preview & Export
+          </button>
         </div>
       </div>
       
-      <div className="preview-section">
-        {resumeData && resumeData.data && (
-          <ResumePreview 
-            resumeData={{
-              ...resumeData.data,
-              projects: Object.values(resumeData.data.projects || {}),
-              jobs: Object.values(resumeData.data.jobs || {}),
-              educations: Object.values(resumeData.data.educations || {}),
-              researchs: Object.values(resumeData.data.researches || {}),
-            }}
-            handleDownloadPDF={handleDownloadPDF}
-            handleDownloadDOCX={handleDownloadDOCX}
-          />
-        )}
+      <div className="editor-content">
+        {renderTabContent()}
       </div>
     </div>
   );

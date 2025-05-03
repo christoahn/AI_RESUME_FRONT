@@ -1,0 +1,275 @@
+/* 청크 에디터 컨테이너 스타일 */
+.chunk-editor-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 사이드바 스타일 */
+.chunk-editor-sidebar {
+  width: 250px;
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+.chunk-editor-sidebar h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: #333;
+}
+
+.chunk-editor-sidebar h4 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #555;
+}
+
+/* 청크 타입 버튼 스타일 */
+.chunk-types {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chunk-type-btn {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chunk-type-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.chunk-type-btn.active {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* 청크 목록 스타일 */
+.chunk-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chunk-list li {
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.chunk-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.chunk-list li.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.no-chunks-message {
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* 채팅 영역 스타일 */
+.chunk-editor-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.chat-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #1890ff;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.ai-message {
+  align-self: flex-start;
+  background-color: #f0f0f0;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+.message-content {
+  word-break: break-word;
+}
+
+.message-content.loading span {
+  animation: dotAnimation 1.5s infinite;
+  display: inline-block;
+  margin-right: 3px;
+}
+
+.message-content.loading span:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.message-content.loading span:nth-child(3) {
+  animation-delay: 1s;
+}
+
+@keyframes dotAnimation {
+  0%, 100% { opacity: 0.2; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-5px); }
+}
+
+/* 채팅 입력 영역 스타일 */
+.chat-input {
+  display: flex;
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chat-input input:focus {
+  border-color: #1890ff;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #1890ff;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-input button:hover {
+  background-color: #40a9ff;
+}
+
+.chat-input button:disabled {
+  background-color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+/* 채팅 제안 영역 스타일 */
+.chat-suggestions {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.chat-suggestions p {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.suggestion-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-buttons button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background-color: white;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-buttons button:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+/* placeholder스타일 */
+.chat-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 16px;
+  font-style: italic;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .chunk-editor-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .chunk-editor-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .chunk-editor-chat {
+    height: 500px;
+  }
+} 

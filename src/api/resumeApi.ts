@@ -37,6 +37,18 @@ interface Research {
   duration: string;
   keywords: string;
 }
+//청크 
+interface ChunkData {
+  id: number;
+  name: string;
+}
+//청크
+interface ChunksByType {
+  projects: ChunkData[];
+  jobs: ChunkData[];
+  researches: ChunkData[];
+  educations: ChunkData[];
+}
 
 interface ResumeData {
   basic_info: BasicInfo;
@@ -49,12 +61,12 @@ interface ResumeData {
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
-// 값이 비어있는지 확인하는 함수
+
 const isEmpty = (value: any): boolean => {
   return value === '' || value === undefined || value === null;
 };
 
-// 값을 적절히 변환하는 함수 (빈 값은 null로 변환)
+
 const formatValue = (value: any): any => {
   return isEmpty(value) ? null : value;
 };
@@ -187,7 +199,7 @@ const resumeApi = {
     }
   },
 
-  // Get Stored resume from database at third page
+  
   getResume: async (resumeId: number) => {
     const response = await fetch(`${API_BASE_URL}/resume/resume_preview?resume_id=${resumeId}`);
     if (!response.ok) {
@@ -233,10 +245,10 @@ const resumeApi = {
         resume_html: resumeHtml
       });
       
-      // Additional validation for response data
+      
       const data = response.data;
       
-      // Ensure we have a valid response object
+      
       if (!data) {
         return {
           status: 'error',
@@ -244,7 +256,7 @@ const resumeApi = {
         };
       }
       
-      // Check if the server reported an error
+      
       if (data.error) {
         return {
           status: 'error',
@@ -252,23 +264,23 @@ const resumeApi = {
         };
       }
       
-      // If there's an updated_json object, validate it's properly formatted
+      
       if (data.updated_json) {
         try {
-          // If it's a string (which it shouldn't be, but just in case), parse it
+          
           if (typeof data.updated_json === 'string') {
             data.updated_json = JSON.parse(data.updated_json);
           }
           
-          // Ensure the updated_json has the expected structure
+          
           if (!data.updated_json.name || !data.updated_json.email) {
             console.warn('Invalid resume JSON structure detected');
-            // Don't update the JSON if it's malformed
+            
             delete data.updated_json;
           }
         } catch (parseError) {
           console.error('Error parsing updated_json:', parseError);
-          // Don't update the JSON if it can't be parsed
+          
           delete data.updated_json;
         }
       }
@@ -301,7 +313,87 @@ const resumeApi = {
       console.error('Error updating resume', err);
       throw err;
     }
-  }
+  },
+  //청크
+  // 이력서의 편집 가능한 청크 목록 가져오는 함수
+  getResumeChunks: async (resumeId: number): Promise<ChunksByType> => {
+    try {
+      // 청크 목록을 가져오는 API 호출
+      const response = await axios.get(`${API_BASE_URL}/resume/chunk_edit/?resume_id=${resumeId}`);
+      
+      // 성공적으로 응답을 받으면 청크 목록 반환
+      if (response.data && response.data.status === 'success') {
+        return response.data.chunks as ChunksByType;
+      } else {
+        // 오류 발생 시 빈 객체 반환
+        console.error('Error fetching resume chunks:', response.data?.error || 'Unknown error');
+        return {
+          projects: [],
+          jobs: [],
+          researches: [],
+          educations: []
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching resume chunks:', error);
+      // 오류 발생 시 빈 객체 반환
+      return {
+        projects: [],
+        jobs: [],
+        researches: [],
+        educations: []
+      };
+    }
+  },
+
+  // 특정 청크를 AI와 채팅을 통해 편집하는 함수
+  editChunkWithAI: async (
+    resumeId: number,
+    chunkType: 'projects' | 'jobs' | 'researches' | 'educations',
+    chunkId: number,
+    message: string
+  ) => {
+    try {
+      // 청크 편집 요청 데이터
+      const requestData = {
+        chunk_type: chunkType,
+        chunk_id: chunkId,
+        message: message
+      };
+      
+      // 청크 편집 API 호출
+      const response = await axios.post(
+        `${API_BASE_URL}/resume/chunk_edit/`, 
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // 응답 확인 및 처리
+      if (response.data && response.data.status === 'success') {
+        return {
+          status: 'success',
+          message: response.data.message || 'Chunk updated successfully',
+          updatedDescription: response.data.updated_description
+        };
+      } else {
+        // 오류 처리
+        return {
+          status: 'error',
+          message: response.data?.error || 'Failed to update chunk'
+        };
+      }
+    } catch (error: any) {
+      console.error('Error editing chunk:', error);
+      return {
+        status: 'error',
+        message: error.response?.data?.error || error.message || 'An error occurred while updating the chunk'
+      };
+    }
+  },
 };
 
 export default resumeApi; 
